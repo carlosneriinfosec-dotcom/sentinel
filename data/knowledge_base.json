@@ -1,0 +1,2446 @@
+[
+  {
+    "description": "Confiar cegamente em dados de APIs de terceiros pode introduzir vulnerabilidades como injeção ou SSRF na sua própria aplicação.",
+    "title": "Consumo Inseguro de APIs",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "13.4.1",
+      "OWASP": "API10:2023"
+    },
+    "content": "Trate todos os dados recebidos de APIs externas como não confiáveis; valide e encode adequadamente.",
+    "verification": "Revisar o processamento de dados vindos de webhooks ou integrações.",
+    "id": "API-10:2023",
+    "severity": "Médio"
+  },
+  {
+    "description": "Atacantes podem acessar ou modificar dados de outros usuários ao manipular IDs em endpoints que não verificam a propriedade do recurso.",
+    "title": "BOLA - Autorização de Objeto",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "PCI-DSS": "7.2.1",
+      "LGPD": "Art. 46",
+      "ASVS": "4.2.1",
+      "OWASP": "API1:2023"
+    },
+    "content": "Implemente uma verificação de autorização em nível de objeto para garantir que o usuário autenticado tenha permissão para o ID específico solicitado.",
+    "verification": "Tentar acessar /api/users/123 sendo o usuário 456.",
+    "id": "API-1:2023",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Endpoints de autenticação fracos permitem ataques de preenchimento de credenciais e bypass de login.",
+    "title": "API - Falha de Autenticação",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "2.1.1",
+      "OWASP": "API2:2023"
+    },
+    "content": "Implemente bloqueios de força bruta, verificação de força de senha e evite tokens previsíveis na API.",
+    "verification": "Testar endpoints de login contra ataques de dicionário.",
+    "id": "API-2:2023",
+    "severity": "Crítico"
+  },
+  {
+    "description": "A falta de filtros em propriedades de objetos permite que atacantes alterem campos sensíveis (ex: 'isAdmin') ou visualizem dados privados exfiltrados em massa.",
+    "title": "BOPLA - Autorização de Propriedade",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "5.1.3",
+      "OWASP": "API3:2023"
+    },
+    "content": "Utilize Data Transfer Objects (DTOs) ou whitelists para garantir que apenas propriedades permitidas sejam lidas ou escritas pela API.",
+    "verification": "Tentar enviar 'isAdmin': true em um payload de atualização de perfil.",
+    "id": "API-3:2023",
+    "severity": "Alto"
+  },
+  {
+    "description": "A falta de limites em requisições permite ataques de DoS (Negação de Serviço) ou aumento excessivo de custos de infraestrutura e serviços de terceiros.",
+    "title": "Consumo Irrestrito de Recursos",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "PCI-DSS": "6.4.1",
+      "ASVS": "13.1.2",
+      "OWASP": "API4:2023"
+    },
+    "content": "Implemente limites de taxa (rate limiting), timeouts de execução e restrições de tamanho de payload em todos os endpoints.",
+    "verification": "Realizar milhares de requisições por segundo para testar o bloqueio.",
+    "id": "API-4:2023",
+    "severity": "Médio"
+  },
+  {
+    "description": "Atacantes podem acessar funções administrativas (ex: /api/admin/delete_user) ao mudar o método HTTP ou o path se a autorização for fraca.",
+    "title": "BFLA - Autorização de Função",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "4.3.1",
+      "OWASP": "API5:2023"
+    },
+    "content": "Verifique a autorização do usuário para cada função específica, independentemente do método ou visibilidade do endpoint.",
+    "verification": "Tentar acessar uma função de admin com um token de usuário comum.",
+    "id": "API-5:2023",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Automações maliciosas podem abusar de fluxos legítimos (como criação de conta ou reset de senha) para spam, fraude ou enumeração de usuários.",
+    "title": "Fluxos de Negócio Sensíveis",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "11.1.1",
+      "SOC 2": "CC6.8",
+      "OWASP": "API6:2023"
+    },
+    "content": "Adicione proteções contra automação (CAPTCHA, análise comportamental) em fluxos críticos de negócio.",
+    "verification": "Tentar criar contas em massa via script.",
+    "id": "API-6:2023",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Servidores com configurações padrão, erros detalhados expostos ou cabeçalhos inseguros facilitam a exploração por atacantes.",
+    "title": "Má Configuração de Segurança",
+    "rules": {},
+    "mapping": {
+      "ASVS": "14.1.1",
+      "OWASP": "API8:2023"
+    },
+    "content": "Siga guias de hardening para o servidor; desative listagem de diretórios e oculte versões de software.",
+    "verification": "Verificar se o servidor retorna a versão exata no cabeçalho 'Server'.",
+    "id": "API-8:2023",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Endpoints antigos (Shadow APIs) ou em versões de teste sem segurança podem ser usados como porta de entrada para ataques.",
+    "title": "Gestão de Inventário de API",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "PCI-DSS": "12.3.1",
+      "SOC 2": "CC6.1",
+      "OWASP": "API9:2023"
+    },
+    "content": "Mantenha uma documentação atualizada (ex: Swagger/OpenAPI) e desative versões obsoletas de APIs imediatamente.",
+    "verification": "Verificar se endpoints /v1 ainda estão ativos após o lançamento da /v2.",
+    "id": "API-9:2023",
+    "severity": "Baixo"
+  },
+  {
+    "description": "A falta de uma visão clara da segurança do sistema leva a lacunas de cobertura e decisões de design inseguras.",
+    "title": "Arquitetura de Segurança Documentada",
+    "rules": {},
+    "mapping": {
+      "ASVS": "1.1.1",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Mantenha documentação técnica descrevendo os controles de segurança em cada camada da aplicação.",
+    "verification": "Revisar o documento de arquitetura de segurança do projeto.",
+    "id": "ASVS-1.1.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "A falta de segmentação entre zonas (ex: frontend vs backend) permite que um comprometimento em um componente se espalhe livremente.",
+    "title": "Zonas de Confiança e Fronteiras",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "1.2.1",
+      "ASVS": "1.1.2",
+      "SOC 2": "CC6.6"
+    },
+    "content": "Defina fronteiras claras entre componentes com diferentes níveis de confiança e implemente controles de passagem.",
+    "verification": "Revisar diagrama de arquitetura e regras de rede entre camadas.",
+    "id": "ASVS-1.1.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Sem saber como o negócio deveria funcionar, auditores e desenvolvedores não conseguem identificar falhas de lógica sutis.",
+    "title": "Documentação de Lógica de Negócio",
+    "rules": {},
+    "mapping": {
+      "ASVS": "1.11.1",
+      "SOC 2": "CC1.3"
+    },
+    "content": "Documente as regras de negócio críticas e os fluxos de trabalho da aplicação.",
+    "verification": "Revisar a documentação de requisitos e processos de negócio.",
+    "id": "ASVS-1.11.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Mecanismos de autenticação mal projetados são alvos de bypass e ataques de força bruta.",
+    "title": "Arquitetura de Autenticação Segura",
+    "rules": {},
+    "mapping": {
+      "ASVS": "1.4.1",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Utilize protocolos de autenticação padrão (OAuth2, OIDC, SAML) em vez de criar soluções proprietárias.",
+    "verification": "Verificar se a autenticação segue padrões reconhecidos pelo mercado.",
+    "id": "ASVS-1.4.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Endpoints expostos sem a devida proteção podem ser explorados para acesso a dados ou negação de serviço.",
+    "title": "Segurança de Endpoint",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "PCI-DSS": "6.4.1",
+      "ASVS": "1.6.1"
+    },
+    "content": "Verifique se todos os endpoints externos estão protegidos por autenticação e controles de tráfego (WAF).",
+    "verification": "Realizar scan de endpoints e verificar barreiras de segurança.",
+    "id": "ASVS-1.6.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Uploads sem validação permitem que atacantes enviem web shells, scripts maliciosos ou payloads que executam no servidor.",
+    "title": "Validação de Upload de Arquivos",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "PCI-DSS": "6.2.4",
+      "ASVS": "10.1.1",
+      "OWASP": "A04:2021"
+    },
+    "content": "Valide a extensão, o MIME-type e o 'magic number' do arquivo; renomeie o arquivo com um ID aleatório.",
+    "verification": "Tentar fazer upload de um arquivo .php disfarçado de .jpg.",
+    "id": "ASVS-10.1.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Arquivos infectados enviados por usuários podem contaminar outros usuários ou o próprio servidor ao serem processados.",
+    "title": "Varredura de Vírus em Uploads",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "PCI-DSS": "5.2.1",
+      "ASVS": "10.1.2",
+      "SOC 2": "CC6.8"
+    },
+    "content": "Integre uma solução de antivírus (ex: ClamAV) no fluxo de upload para escanear arquivos em tempo real.",
+    "verification": "Tentar fazer upload do arquivo de teste EICAR.",
+    "id": "ASVS-10.1.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Nomes de arquivos com caracteres especiais ou nulos podem causar erros no sistema de arquivos ou permitir execução de código.",
+    "title": "Sanitização de Nome de Arquivo",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "10.1.3",
+      "OWASP": "A04:2021"
+    },
+    "content": "Remova caracteres de controle, metacaracteres e caminhos relativos dos nomes de arquivos antes de salvá-los.",
+    "verification": "Tentar fazer upload de um arquivo chamado 'test;ls.jpg'.",
+    "id": "ASVS-10.1.3",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Metadados (EXIF) em imagens podem conter localizações GPS, modelos de câmera e informações de usuários, expondo privacidade.",
+    "title": "Remoção de Metadados de Arquivos",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "10.1.4"
+    },
+    "content": "Remova metadados sensíveis de arquivos enviados por usuários antes de disponibilizá-los para outros.",
+    "verification": "Baixar um arquivo enviado e verificar se os dados EXIF foram removidos.",
+    "id": "ASVS-10.1.4",
+    "severity": "Alto"
+  },
+  {
+    "description": "Caminhos de arquivos baseados em entrada do usuário levam a ataques de Path Traversal, expondo arquivos do sistema (ex: /etc/passwd).",
+    "title": "Acesso Indireto a Arquivos",
+    "rules": {},
+    "mapping": {
+      "ASVS": "10.2.1",
+      "OWASP": "A01:2021"
+    },
+    "content": "Não use nomes de arquivos fornecidos pelo usuário em funções de leitura; utilize um mapeamento por ID em banco de dados.",
+    "verification": "Tentar ler o arquivo usando '../../../../etc/passwd'.",
+    "id": "ASVS-10.2.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Bibliotecas de processamento de imagem/PDF são complexas e frequentemente possuem vulnerabilidades de RCE.",
+    "title": "Sandbox para Processamento de Arquivos",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "10.3.1",
+      "SOC 2": "CC6.8"
+    },
+    "content": "Execute o processamento de arquivos (redimensionamento, conversão) em um contêiner ou processo isolado com privilégios mínimos.",
+    "verification": "Revisar arquitetura de processamento de mídia.",
+    "id": "ASVS-10.3.1",
+    "severity": "Médio"
+  },
+  {
+    "description": "Arquivos armazenados no diretório web podem ser executados diretamente se o servidor estiver mal configurado.",
+    "title": "Isolamento de Armazenamento de Arquivos",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "6.2.4",
+      "ASVS": "10.3.2"
+    },
+    "content": "Armazene arquivos enviados fora da raiz do servidor web ou em serviços de storage isolados (ex: S3) sem permissão de execução.",
+    "verification": "Tentar acessar um arquivo via URL direta e verificar se ele é executado.",
+    "id": "ASVS-10.3.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Falhas na lógica permitem que usuários realizem ações proibidas, como comprar itens com valor negativo ou transferir saldo inexistente.",
+    "title": "Validação de Lógica de Negócio",
+    "rules": {},
+    "mapping": {
+      "ASVS": "11.1.1",
+      "OWASP": "A01:2021"
+    },
+    "content": "Implemente verificações de integridade em todas as transações, garantindo que as regras de negócio sejam respeitadas no servidor.",
+    "verification": "Tentar realizar transações com valores negativos ou fora dos limites.",
+    "id": "ASVS-11.1.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Ataques de tempo podem permitir que o mesmo saldo seja gasto múltiplas vezes se a aplicação não utilizar travas (locks) adequadas.",
+    "title": "Prevenção de Race Conditions",
+    "rules": {
+      "database": true
+    },
+    "mapping": {
+      "ASVS": "11.1.2",
+      "OWASP": "A04:2021"
+    },
+    "content": "Utilize transações de banco de dados e mecanismos de bloqueio (mutex/lock) para operações críticas concorrentes.",
+    "verification": "Realizar múltiplas requisições simultâneas para a mesma operação de débito.",
+    "id": "ASVS-11.1.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Sem logs de ações de negócio, é impossível rastrear fraudes ou comportamentos anômalos realizados por usuários legítimos.",
+    "title": "Trilha de Auditoria de Lógica de Negócio",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "10.2.1",
+      "ASVS": "11.1.3",
+      "SOC 2": "CC7.2"
+    },
+    "content": "Registre logs detalhados de todas as ações críticas (ex: aprovação de crédito, transferências, mudanças de status).",
+    "verification": "Realizar uma ação de negócio e verificar se o log contém os detalhes necessários.",
+    "id": "ASVS-11.1.3",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Exibir dados como números de cartão ou CPF integralmente na interface aumenta o risco de roubo de identidade por observação ou capturas de tela.",
+    "title": "Mascaramento de Dados Sensíveis",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "PCI-DSS": "3.4.1",
+      "LGPD": "Art. 5",
+      "ASVS": "12.1.1"
+    },
+    "content": "Exiba apenas os últimos dígitos de informações sensíveis, a menos que o usuário tenha necessidade explícita de ver o dado completo.",
+    "verification": "Verificar a exibição de dados de perfil e pagamento.",
+    "id": "ASVS-12.1.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Coletar mais dados do que o necessário aumenta o risco e o impacto de um eventual vazamento de dados pessoais.",
+    "title": "Minimização de Coleta de Dados",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "LGPD": "Art. 6, III",
+      "ASVS": "12.1.2"
+    },
+    "content": "Verifique se a aplicação coleta apenas os dados pessoais estritamente necessários para a finalidade informada.",
+    "verification": "Revisar todos os campos de formulário e sua utilidade real.",
+    "id": "ASVS-12.1.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Utilizar dados pessoais para fins diferentes do consentido originalmente é uma violação grave de privacidade.",
+    "title": "Limitação de Uso de PII",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "LGPD": "Art. 6, I",
+      "ASVS": "12.1.3"
+    },
+    "content": "Implemente controles técnicos que impeçam que dados pessoais sejam acessados por módulos que não possuem finalidade legítima.",
+    "verification": "Revisar permissões de microserviços/módulos sobre tabelas de PII.",
+    "id": "ASVS-12.1.3",
+    "severity": "Alto"
+  },
+  {
+    "description": "Dados excluídos que permanecem em discos ou backups podem ser recuperados por atacantes se não forem devidamente sobrescritos.",
+    "title": "Destruição Segura de Dados",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "LGPD": "Art. 18",
+      "HIPAA": "164.310(d)(2)(i)",
+      "ASVS": "12.2.1"
+    },
+    "content": "Implemente procedimentos para a exclusão definitiva de dados (sanitização de mídia) quando o período de retenção expirar.",
+    "verification": "Revisar políticas de retenção e destruição de dados.",
+    "id": "ASVS-12.2.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Dados remanescentes em discos físicos descartados ou reutilizados podem ser recuperados se não houver sanitização adequada.",
+    "title": "Limpeza de Discos e Mídia",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.310(d)(2)(i)",
+      "ASVS": "12.2.2"
+    },
+    "content": "Siga procedimentos de destruição de dados (Wiping) para mídias físicas que saem de uso.",
+    "verification": "Revisar certificado de destruição de mídia em provedores de infraestrutura.",
+    "id": "ASVS-12.2.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "A falta de um plano de resposta atrasa a comunicação aos titulares e autoridades, aumentando penalidades legais.",
+    "title": "Plano de Notificação de Violação",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 48",
+      "HIPAA": "164.404",
+      "ASVS": "12.3.1",
+      "SOC 2": "CC7.3"
+    },
+    "content": "Mantenha um processo documentado para notificar incidentes de segurança conforme exigido por lei.",
+    "verification": "Simulado de resposta a incidentes.",
+    "id": "ASVS-12.3.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Garante que a API processe apenas estruturas de dados esperadas e bem formadas, prevenindo ataques que exploram vulnerabilidades em parsers de XML, JSON ou outros formatos.",
+    "title": "Validação de Formatos de API",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "13.1.1",
+      "OWASP": "A04:2021"
+    },
+    "content": "Verifique se la API valida se o Content-Type é o esperado (ex: application/json).",
+    "verification": "Enviar JSON com Content-Type errado.",
+    "id": "ASVS-13.1.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Requisições que retornam milhares de registros podem causar exaustão de memória e CPU, levando a negação de serviço (DoS).",
+    "title": "Paginação de Resultados de API",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "13.1.2",
+      "OWASP": "A04:2021-API"
+    },
+    "content": "Implemente limites obrigatórios de tamanho de página (ex: max 100 itens) para todos os endpoints de listagem.",
+    "verification": "Tentar solicitar 1 milhão de itens em uma única requisição.",
+    "id": "ASVS-13.1.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Não validar o Content-Type permite ataques de injeção onde o parser processa o dado de forma incorreta.",
+    "title": "Enforcement de Content-Type na API",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "13.1.3",
+      "OWASP": "A04:2021-API"
+    },
+    "content": "Rejeite qualquer requisição que não contenha o Content-Type esperado (ex: application/json).",
+    "verification": "Enviar um payload JSON com Content-Type text/html.",
+    "id": "ASVS-13.1.3",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Elimina o risco de 'Shadow APIs' ou endpoints esquecidos sem proteção, garantindo que toda a superfície de exposição da API exija prova de identidade e autorização.",
+    "title": "Autenticação em Todos os Endpoints",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "13.2.1",
+      "OWASP": "A01:2021"
+    },
+    "content": "Verifique se todos os endpoints da API (exceto login) exigem um token válido.",
+    "verification": "Teste de acesso a endpoints sem cabeçalho Authorization.",
+    "id": "ASVS-13.2.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Chaves de API vazadas dão acesso permanente aos serviços se não houver um mecanismo de revogação eficiente.",
+    "title": "Gestão Segura de Chaves de API",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "13.2.2",
+      "OWASP": "A02:2021-API"
+    },
+    "content": "Garanta que chaves de API sejam tratadas como senhas; ofereça funcionalidade de revogação e expiração.",
+    "verification": "Verificar se as chaves são armazenadas em hash ou criptografadas.",
+    "id": "ASVS-13.2.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Tokens de longa duração aumentam a janela de ataque em caso de roubo; refresh tokens limitam esse tempo.",
+    "title": "Refresh de Tokens de API",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "13.2.3",
+      "OWASP": "A02:2021-API"
+    },
+    "content": "Utilize tokens de acesso de curta duração e mecanismos de refresh token para manter a sessão.",
+    "verification": "Verificar o tempo de expiração (exp) do JWT.",
+    "id": "ASVS-13.2.3",
+    "severity": "Alto"
+  },
+  {
+    "description": "A falta de proteção de borda expõe a API diretamente a ataques automatizados e scanners de vulnerabilidades.",
+    "title": "Proteção via API Gateway / WAF",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "PCI-DSS": "6.4.1",
+      "ASVS": "13.3.1",
+      "OWASP": "A08:2021-API"
+    },
+    "content": "Utilize um API Gateway ou Web Application Firewall para filtrar tráfego malicioso e aplicar rate limiting.",
+    "verification": "Verificar se o WAF está bloqueando ataques conhecidos.",
+    "id": "ASVS-13.3.1",
+    "severity": "Médio"
+  },
+  {
+    "description": "Webhooks sem autenticação permitem que atacantes enviem eventos forjados para a aplicação, executando ações em nome de terceiros.",
+    "title": "Segurança em Webhooks",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "13.4.1",
+      "OWASP": "API10:2023"
+    },
+    "content": "Valide a assinatura de todos os webhooks recebidos utilizando um segredo compartilhado (HMAC).",
+    "verification": "Tentar enviar um payload para o endpoint de webhook sem a assinatura correta.",
+    "id": "ASVS-13.4.1",
+    "severity": "Médio"
+  },
+  {
+    "description": "A ausência de cabeçalhos de segurança deixa o navegador vulnerável a diversos ataques como Clickjacking e Sniffing de MIME.",
+    "title": "Cabeçalhos de Segurança HTTP",
+    "rules": {
+      "web_frontend": true
+    },
+    "mapping": {
+      "ASVS": "14.1.1",
+      "OWASP": "A05:2021"
+    },
+    "content": "Implemente X-Frame-Options, X-Content-Type-Options e Referrer-Policy em todas as respostas.",
+    "verification": "Analisar cabeçalhos de resposta HTTP.",
+    "id": "ASVS-14.1.1",
+    "severity": "Médio"
+  },
+  {
+    "description": "Sistemas desatualizados possuem vulnerabilidades conhecidas e exploradas publicamente.",
+    "title": "Atualização de Componentes e Patches",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "6.3.3",
+      "ASVS": "14.2.1",
+      "OWASP": "A06:2021"
+    },
+    "content": "Estabeleça um processo para aplicar patches de segurança em SO, frameworks e bibliotecas em no máximo 30 dias.",
+    "verification": "Verificar versão do servidor e dependências contra bancos de CVEs.",
+    "id": "ASVS-14.2.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Atrasar a correção de falhas críticas aumenta exponencialmente o risco de invasão por exploits públicos.",
+    "title": "SLA de Aplicação de Patches",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "6.3.3",
+      "ASVS": "14.2.2",
+      "SOC 2": "CC7.1"
+    },
+    "content": "Defina um SLA formal para aplicação de patches: Crítico em 48h, Alto em 15 dias, Médio em 30 dias.",
+    "verification": "Verificar se as últimas vulnerabilidades foram corrigidas dentro do SLA.",
+    "id": "ASVS-14.2.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Senhas em arquivos de configuração ou variáveis de ambiente sem proteção facilitam o movimento lateral de atacantes.",
+    "title": "Uso de Cofre de Segredos (Vault)",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "3.5.2",
+      "ASVS": "14.3.1",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Utilize soluções como AWS Secrets Manager, HashiCorp Vault ou Azure Key Vault para gerenciar credenciais.",
+    "verification": "Confirmar que não existem segredos em texto claro no repositório de código.",
+    "id": "ASVS-14.3.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Segredos no código (Hardcoded) são facilmente descobertos por atacantes ou ex-colaboradores com acesso ao repositório.",
+    "title": "Proibição de Segredos no Código",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "3.5.2",
+      "ASVS": "14.3.2",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Utilize ferramentas de scan (ex: gitleaks) para garantir que nenhum segredo seja enviado ao repositório de código.",
+    "verification": "Executar gitleaks no histórico do repositório.",
+    "id": "ASVS-14.3.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "A mistura de dados de produção em desenvolvimento aumenta o risco de vazamento de PII por falhas em código não testado.",
+    "title": "Segregação de Ambientes",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "6.5.1",
+      "ASVS": "14.4.1",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Mantenha ambientes de Produção, Homologação e Desenvolvimento física ou logicamente isolados.",
+    "verification": "Verificar se as credenciais de produção funcionam em desenvolvimento.",
+    "id": "ASVS-14.4.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "A falta de integridade no processo de deploy permite a injeção de código malicioso entre o desenvolvimento e a produção.",
+    "title": "Pipeline de Deploy Seguro",
+    "rules": {},
+    "mapping": {
+      "ASVS": "14.4.2",
+      "SOC 2": "CC8.1"
+    },
+    "content": "Utilize automação para deploys; garanta que apenas o pipeline de CI/CD possa escrever no ambiente de produção.",
+    "verification": "Tentar realizar um deploy manual sem passar pelo CI/CD.",
+    "id": "ASVS-14.4.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Backups sem criptografia são alvos fáceis para atacantes que queiram exfiltrar toda a base de dados silenciosamente.",
+    "title": "Criptografia de Backups",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "3.5.1",
+      "HIPAA": "164.312(a)(2)(iv)",
+      "ASVS": "14.5.1"
+    },
+    "content": "Garanta que todos os backups sejam criptografados com algoritmos fortes antes de serem armazenados.",
+    "verification": "Tentar ler o conteúdo de um arquivo de backup.",
+    "id": "ASVS-14.5.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Perder as chaves de criptografia do backup significa perder a capacidade de restaurar o sistema em um desastre.",
+    "title": "Segurança de Chaves de Backup",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "3.5.3",
+      "HIPAA": "164.312(a)(2)(iv)",
+      "ASVS": "14.5.1"
+    },
+    "content": "Armazene as chaves de criptografia de backup em local seguro, separado do backup em si, e com cópias de contingência.",
+    "verification": "Verificar o procedimento de gestão de chaves de backup.",
+    "id": "ASVS-14.5.1.Key",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Backups que nunca foram testados podem estar corrompidos, inviabilizando a recuperação em caso de desastre ou ransomware.",
+    "title": "Teste de Restauração de Backups",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.308(a)(7)(ii)(D)",
+      "ASVS": "14.5.2",
+      "SOC 2": "CC9.1"
+    },
+    "content": "Realize testes periódicos (mínimo semestral) de restauração completa dos backups para garantir a integridade.",
+    "verification": "Revisar logs de testes de restauração bem-sucedidos.",
+    "id": "ASVS-14.5.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Incidentes que afetam o data center principal (incêndios, desastres naturais) podem destruir tanto os dados quanto os backups locais.",
+    "title": "Armazenamento Offsite de Backups",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.308(a)(7)(ii)(A)",
+      "ASVS": "14.5.3",
+      "SOC 2": "CC9.1"
+    },
+    "content": "Mantenha cópias dos backups em uma região geográfica diferente ou provedor de nuvem distinto.",
+    "verification": "Verificar a localização física/nuvem dos backups.",
+    "id": "ASVS-14.5.3",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Permissões excessivas em diretórios de backup permitem que usuários não autorizados leiam ou excluam as cópias de segurança.",
+    "title": "Controle de Acesso a Backups",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "10.2.2",
+      "ASVS": "14.5.4"
+    },
+    "content": "Restrinja o acesso aos backups apenas a processos automatizados e administradores de sistema essenciais.",
+    "verification": "Auditoria de permissões em buckets/storages de backup.",
+    "id": "ASVS-14.5.4",
+    "severity": "Alto"
+  },
+  {
+    "description": "Garante que a entropia da senha seja suficiente para resistir a ataques de força bruta, dificultando a quebra de credenciais por meio de exaustão computacional.",
+    "title": "Comprimento Mínimo de Senha",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "2.1.1",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se as senhas possuem pelo menos 12 caracteres.",
+    "verification": "Teste funcional de criação de conta.",
+    "id": "ASVS-2.1.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Sem orientação, usuários tendem a escolher senhas fracas. O feedback visual ajuda na criação de credenciais mais resilientes.",
+    "title": "Feedback de Força de Senha",
+    "rules": {
+      "web_frontend": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "2.1.10"
+    },
+    "content": "Implemente um medidor de força de senha que utilize entropia (ex: zxcvbn) para orientar o usuário.",
+    "verification": "Observar o medidor de força durante a criação da senha.",
+    "id": "ASVS-2.1.10",
+    "severity": "Alto"
+  },
+  {
+    "description": "Dicas de senha frequentemente revelam informações que facilitam a adivinhação por atacantes ou engenharia social.",
+    "title": "Proibir Dicas de Senha",
+    "rules": {},
+    "mapping": {
+      "ASVS": "2.1.12",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o sistema NÃO oferece a funcionalidade de 'dica de senha' ou perguntas de segurança baseadas em conhecimento.",
+    "verification": "Revisar fluxos de recuperação e criação de conta.",
+    "id": "ASVS-2.1.12",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Permitir uma ampla gama de caracteres (incluindo Unicode e espaços) aumenta o espaço de busca para atacantes, prevenindo adivinhações baseadas em dicionários ou padrões simples.",
+    "title": "Complexidade de Senha",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "2.1.2",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o sistema permite qualquer caractere Unicode, incluindo espaços.",
+    "verification": "Teste de validação de campo de senha.",
+    "id": "ASVS-2.1.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Senhas encontradas em listas de vazamentos ou padrões comuns são alvos fáceis de ataques de preenchimento de credenciais (credential stuffing).",
+    "title": "Bloqueio de Senhas Comuns",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "8.3.6",
+      "LGPD": "Art. 46",
+      "ASVS": "2.1.3",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o sistema impede o uso de senhas fracas conhecidas contra uma lista atualizada de senhas vazadas.",
+    "verification": "Tentar cadastrar senhas como '123456' ou 'password'.",
+    "id": "ASVS-2.1.3",
+    "severity": "Alto"
+  },
+  {
+    "description": "Evita o uso de padrões óbvios que são os primeiros alvos em ataques de preenchimento de credenciais (credential stuffing) e ataques de dicionário focados em comportamento humano comum.",
+    "title": "Senhas Sequenciais ou Repetitivas",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "2.1.4",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o sistema impede o uso de senhas sequenciais (12345) ou repetitivas (aaaaa).",
+    "verification": "Teste de submissão de senhas fracas.",
+    "id": "ASVS-2.1.4",
+    "severity": "Alto"
+  },
+  {
+    "description": "Senhas temporárias ou iniciais são frequentemente menos seguras e podem ser conhecidas por administradores, criando um risco de abuso de conta.",
+    "title": "Troca de Senha no Primeiro Acesso",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "8.3.9",
+      "ASVS": "2.1.5",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Verifique se o sistema exige a alteração imediata de senhas geradas administrativamente no primeiro login.",
+    "verification": "Realizar o primeiro login com uma senha temporária.",
+    "id": "ASVS-2.1.5",
+    "severity": "Alto"
+  },
+  {
+    "description": "Desestimular a troca periódica sem evidências de comprometimento evita que usuários criem senhas previsíveis ou anotem credenciais devido à fadiga, mantendo a integridade do segredo principal.",
+    "title": "Troca de Senha Obrigatória",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "2.1.7",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o sistema NÃO força a troca periódica de senhas sem evidência de comprometimento.",
+    "verification": "Revisão de política de senha.",
+    "id": "ASVS-2.1.7",
+    "severity": "Alto"
+  },
+  {
+    "description": "Impedir o uso de senhas que já vazaram em incidentes de segurança globais protege o usuário contra ataques automatizados que utilizam bases de dados de vazamentos reais.",
+    "title": "Lista de Senhas Expostas",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "2.1.8",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se as senhas são comparadas contra uma lista de senhas comprometidas.",
+    "verification": "Teste de criação de conta com senhas comuns (ex: 'password123').",
+    "id": "ASVS-2.1.8",
+    "severity": "Alto"
+  },
+  {
+    "description": "Evita a enumeração de usuários legítimos ao não distinguir se o erro ocorreu no nome de usuário ou na senha, reduzindo a superfície de informação disponível para um atacante.",
+    "title": "Mensagens de Erro Genéricas",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "2.10.3",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se as mensagens de erro de login são genéricas (ex: 'Usuário ou senha inválidos').",
+    "verification": "Teste de tentativa de login com usuário inexistente.",
+    "id": "ASVS-2.10.3",
+    "severity": "Alto"
+  },
+  {
+    "description": "Garante que o fluxo de recuperação não seja um elo fraco, exigindo tokens temporários e de uso único para evitar o sequestro de contas através de links antigos ou interceptados.",
+    "title": "Mecanismo de Recuperação de Senha",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "2.2.1",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o link de recuperação de senha é de uso único e expira em curto prazo.",
+    "verification": "Teste de fluxo de esqueci minha senha.",
+    "id": "ASVS-2.2.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Apenas senhas não são suficientes para proteger contas críticas.",
+    "title": "Autenticação de Dois Fatores (2FA)",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "2.3.1",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o sistema oferece suporte a 2FA (TOTP, FIDO, etc.).",
+    "verification": "Verificação de configuração de segurança do usuário.",
+    "id": "ASVS-2.3.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Mitiga ataques de força bruta online ao impor um custo de tempo ou bloqueio administrativo após sucessivas falhas, tornando ataques automatizados de adivinhação inviáveis.",
+    "title": "Bloqueio de Conta",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "2.4.2",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o sistema implementa bloqueio temporário após 5-10 tentativas falhas.",
+    "verification": "Teste de força bruta em login.",
+    "id": "ASVS-2.4.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Acessos de IPs ou localizações geográficas incomuns aumentam a probabilidade de contas sequestradas.",
+    "title": "Autenticação Adaptativa",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.312(a)(1)",
+      "ASVS": "2.4.3",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Implemente controles que exijam MFA adicional ou bloqueio quando o login ocorrer em condições anômalas.",
+    "verification": "Simular login de uma localização geográfica ou rede diferente.",
+    "id": "ASVS-2.4.3",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Impede que um atacante com acesso a uma sessão ativa realize mudanças críticas sem conhecer a credencial principal.",
+    "title": "Re-autenticação para Operações Sensíveis",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "8.2.3",
+      "ASVS": "2.5.1",
+      "OWASP": "A07:2021"
+    },
+    "content": "Exija a senha atual antes de permitir a alteração de senha, e-mail ou desativação de MFA.",
+    "verification": "Tentar alterar o e-mail da conta sem fornecer a senha.",
+    "id": "ASVS-2.5.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Se o processo de ativação do MFA for fraco, um atacante pode registrar seu próprio dispositivo antes do usuário legítimo.",
+    "title": "Enrollment Seguro de MFA",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.312(a)(2)(i)",
+      "ASVS": "2.7.2",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Verifique se a ativação do MFA exige prova de identidade (ex: senha e token temporário via e-mail).",
+    "verification": "Fluxo de ativação de 2FA.",
+    "id": "ASVS-2.7.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Permite que o usuário legítimo identifique e reaja rapidamente a acessos não autorizados ou alterações críticas em sua conta, servindo como um controle de detecção eficaz.",
+    "title": "Notificação de Alteração de Credenciais",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "2.8.1",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se um e-mail é enviado ao alterar senha ou e-mail da conta.",
+    "verification": "Fluxo de alteração de perfil.",
+    "id": "ASVS-2.8.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "A geração de IDs de sessão com alta entropia impede que atacantes prevejam ou forjem tokens válidos para sequestrar sessões ativas de outros usuários.",
+    "title": "Identificadores de Sessão Únicos",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "3.1.1",
+      "OWASP": "A02:2021"
+    },
+    "content": "Verifique se o ID de sessão é gerado por um algoritmo criptográfico forte.",
+    "verification": "Análise de entropia de cookies de sessão.",
+    "id": "ASVS-3.1.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Protege o token de sessão contra ataques de Cross-Site Scripting (XSS), impedindo que scripts maliciosos injetados no navegador acessem o cookie de autenticação.",
+    "title": "Atributo HttpOnly",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "3.2.1",
+      "OWASP": "A03:2021"
+    },
+    "content": "Verifique se os cookies de sessão possuem a flag 'HttpOnly'.",
+    "verification": "Inspeção de cabeçalhos HTTP via Browser.",
+    "id": "ASVS-3.2.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Garante que os cookies de sessão sejam transmitidos exclusivamente via canais criptografados (HTTPS), prevenindo a interceptação de credenciais em redes inseguras ou via ataques Man-in-the-Middle.",
+    "title": "Atributo Secure",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "3.2.2",
+      "OWASP": "A02:2021"
+    },
+    "content": "Verifique se os cookies de sessão possuem a flag 'Secure'.",
+    "verification": "Inspeção de tráfego HTTPS.",
+    "id": "ASVS-3.2.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Previne ataques de Cross-Site Request Forgery (CSRF) ao restringir o envio automático de cookies em requisições de sites cruzados, protegendo a integridade das ações do usuário.",
+    "title": "Atributo SameSite",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "3.2.3",
+      "OWASP": "A01:2021"
+    },
+    "content": "Verifique se o atributo 'SameSite' está definido como 'Lax' ou 'Strict'.",
+    "verification": "Inspeção de cabeçalho Set-Cookie.",
+    "id": "ASVS-3.2.3",
+    "severity": "Alto"
+  },
+  {
+    "description": "Reduz a janela de oportunidade para que um atacante utilize uma sessão abandonada ou esquecida em um computador compartilhado ou dispositivo comprometido.",
+    "title": "Timeout de Sessão Inativa",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "3.3.1",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se a sessão expira após um período de inatividade (ex: 30 min).",
+    "verification": "Teste de tempo de vida de sessão.",
+    "id": "ASVS-3.3.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Sessões que nunca expiram aumentam o risco de sequestro de sessão persistente, mesmo se o usuário estiver ativo.",
+    "title": "Timeout de Sessão Absoluto",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "8.2.8",
+      "HIPAA": "164.312(a)(2)(iii)",
+      "ASVS": "3.3.2"
+    },
+    "content": "Defina um tempo de vida máximo para a sessão (ex: 24h), forçando novo login independentemente da atividade.",
+    "verification": "Verificar se a sessão expira após o tempo absoluto configurado.",
+    "id": "ASVS-3.3.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "O logout deve invalidar a sessão tanto no cliente quanto no servidor.",
+    "title": "Terminação de Sessão (Logout)",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "3.4.1",
+      "OWASP": "A07:2021"
+    },
+    "content": "Verifique se o logout destrói o token de sessão no backend.",
+    "verification": "Tentar usar o token após o logout.",
+    "id": "ASVS-3.4.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Permite que o usuário encerre sessões em dispositivos perdidos ou esquecidos, reduzindo a exposição.",
+    "title": "Revogação de Sessão pelo Usuário",
+    "rules": {
+      "web_frontend": true
+    },
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "3.5.1"
+    },
+    "content": "Forneça uma interface para o usuário visualizar e encerrar outras sessões ativas.",
+    "verification": "Testar funcionalidade de 'Sair de todos os dispositivos'.",
+    "id": "ASVS-3.5.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Previne ataques de fixação de sessão ao garantir que o identificador mude após a autenticação, invalidando qualquer ID que possa ter sido pré-estabelecido por um atacante.",
+    "title": "Rotação de ID de Sessão",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "3.5.2",
+      "OWASP": "A01:2021"
+    },
+    "content": "Verifique se o ID de sessão muda após o login bem-sucedido.",
+    "verification": "Comparar IDs de sessão antes e depois do login.",
+    "id": "ASVS-3.5.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Limitar sessões simultâneas dificulta o compartilhamento de contas e ajuda a detectar acessos indevidos.",
+    "title": "Controle de Sessões Simultâneas",
+    "rules": {},
+    "mapping": {
+      "ASVS": "3.5.3",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Implemente um limite configurável de sessões ativas por usuário (ex: máximo 5 sessões).",
+    "verification": "Realizar múltiplos logins em navegadores diferentes.",
+    "id": "ASVS-3.5.3",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Tokens expostos no frontend ou em locais inseguros podem ser capturados e usados para acesso não autorizado.",
+    "title": "Armazenamento Seguro de Tokens de API",
+    "rules": {
+      "web_frontend": true
+    },
+    "mapping": {
+      "ASVS": "3.6.1",
+      "OWASP": "A04:2021-API"
+    },
+    "content": "Utilize Secure Storage ou Cookies HttpOnly para armazenar tokens; evite localStorage para dados sensíveis.",
+    "verification": "Inspecionar o Application tab do navegador por tokens sensíveis.",
+    "id": "ASVS-3.6.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Minimiza o raio de explosão em caso de comprometimento, garantindo que cada usuário ou processo tenha apenas o acesso estritamente necessário para suas funções legítimas.",
+    "title": "Princípio do Menor Privilégio",
+    "rules": {
+      "pii_data": true,
+      "web_frontend": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "4.1.1",
+      "OWASP": "A01:2021"
+    },
+    "content": "Verifique se os usuários possuem apenas as permissões necessárias para sua função.",
+    "verification": "Revisão de matriz de controle de acesso.",
+    "id": "ASVS-4.1.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Sistemas que permitem acesso por padrão são vulneráveis se novos endpoints forem esquecidos sem proteção.",
+    "title": "Configuração 'Default Deny'",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "7.2.2",
+      "ASVS": "4.1.2",
+      "SOC 2": "CC6.3"
+    },
+    "content": "Configure o framework de segurança para negar acesso a qualquer recurso que não tenha uma regra de permissão explícita.",
+    "verification": "Criar um novo endpoint e tentar acessá-lo sem configurar permissões.",
+    "id": "ASVS-4.1.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Impede que atacantes burlem restrições de interface ao validar todas as permissões no backend, onde as regras de negócio e segurança não podem ser manipuladas pelo usuário.",
+    "title": "Controle de Acesso no Lado do Servidor",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "4.1.3",
+      "OWASP": "A01:2021"
+    },
+    "content": "Verifique se todas as verificações de acesso ocorrem no backend.",
+    "verification": "Tentar acessar endpoints protegidos diretamente via API.",
+    "id": "ASVS-4.1.3",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Garante que a autorização seja verificada para cada recurso acessado, impedindo que um usuário visualize ou modifique dados de terceiros ao simplesmente manipular identificadores em requisições.",
+    "title": "IDOR - Referência Direta Insegura",
+    "rules": {
+      "pii_data": true,
+      "web_api": true,
+      "web_frontend": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "4.2.1",
+      "OWASP": "A01:2021"
+    },
+    "content": "Verifique se o sistema valida se o usuário tem permissão para acessar o ID solicitado.",
+    "verification": "Mudar o ID na URL para o ID de outro usuário.",
+    "id": "ASVS-4.2.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Isola áreas críticas de gestão do sistema com controles de acesso rigorosos, evitando que usuários comuns escalem privilégios e tomem controle total da aplicação.",
+    "title": "Proteção de Funções Administrativas",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "4.3.1",
+      "OWASP": "A01:2021"
+    },
+    "content": "Verifique se funções administrativas exigem autenticação e autorização robustas.",
+    "verification": "Tentar acessar caminhos /admin sem ser administrador.",
+    "id": "ASVS-4.3.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Contas administrativas têm alto privilégio; seu comprometimento pode resultar em perda total de dados e controle.",
+    "title": "MFA Obrigatório para Administradores",
+    "rules": {
+      "admin_interface": true
+    },
+    "mapping": {
+      "PCI-DSS": "8.4.2",
+      "HIPAA": "164.312(a)(1)",
+      "ASVS": "4.3.2",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Exija autenticação multi-fator para todos os usuários com acesso administrativo ou funções de gestão.",
+    "verification": "Tentar logar em conta admin apenas com senha.",
+    "id": "ASVS-4.3.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Acessos remotos administrativos sem MFA são alvos primários para atacantes externos que buscam controle total da infraestrutura.",
+    "title": "MFA para Acesso Privilegiado Remoto",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "8.4.2",
+      "HIPAA": "164.312(a)(1)",
+      "ASVS": "4.3.2"
+    },
+    "content": "Implemente MFA para todo acesso remoto administrativo à rede ou aos sistemas da aplicação.",
+    "verification": "Tentar acessar o ambiente admin via VPN/SSH sem segundo fator.",
+    "id": "ASVS-4.3.2.Priv",
+    "severity": "Alto"
+  },
+  {
+    "description": "Sessões administrativas abertas são alvos primários em ataques locais ou de sequestro de navegador.",
+    "title": "Timeout Curto para Sessões Admin",
+    "rules": {
+      "admin_interface": true
+    },
+    "mapping": {
+      "PCI-DSS": "8.2.8",
+      "ASVS": "4.3.3"
+    },
+    "content": "Configure um tempo de inatividade menor para contas administrativas (ex: 15 minutos).",
+    "verification": "Verificar expiração de sessão administrativa por inatividade.",
+    "id": "ASVS-4.3.3",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Aceitar qualquer dado permite ataques de injeção.",
+    "title": "Validação de Entrada (Whitelist)",
+    "rules": {
+      "web_frontend": true,
+      "web_api": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "5.1.3",
+      "OWASP": "A03:2021"
+    },
+    "content": "Verifique se as entradas são validadas contra uma lista de valores permitidos.",
+    "verification": "Teste de input com caracteres especiais.",
+    "id": "ASVS-5.1.3",
+    "severity": "Alto"
+  },
+  {
+    "description": "Entradas excessivamente longas podem causar Buffer Overflows, negação de serviço ou estouro de memória no servidor.",
+    "title": "Validação de Comprimento de Entrada",
+    "rules": {},
+    "mapping": {
+      "ASVS": "5.1.4",
+      "OWASP": "A03:2021"
+    },
+    "content": "Defina e aplique limites máximos de caracteres para todos os campos de entrada baseados no tipo de dado esperado.",
+    "verification": "Tentar enviar uma string de 1MB em um campo de 'Nome'.",
+    "id": "ASVS-5.1.4",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Permitir caracteres especiais em campos onde eles não são esperados facilita ataques de injeção.",
+    "title": "Validação de Conjunto de Caracteres",
+    "rules": {},
+    "mapping": {
+      "ASVS": "5.1.5",
+      "OWASP": "A03:2021"
+    },
+    "content": "Aplique whitelists de caracteres permitidos (ex: apenas letras e números para nomes de usuário).",
+    "verification": "Tentar inserir caracteres como < > ; ' em campos restritos.",
+    "id": "ASVS-5.1.5",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Dados maliciosos podem corromper a lógica da aplicação ou causar comportamentos inesperados no banco de dados ou SO.",
+    "title": "Sanitização de Dados de Entrada",
+    "rules": {},
+    "mapping": {
+      "ASVS": "5.2.1",
+      "OWASP": "A03:2021"
+    },
+    "content": "Utilize bibliotecas de sanitização para remover caracteres perigosos de strings de entrada antes do processamento.",
+    "verification": "Teste de input com caracteres de controle e nulos.",
+    "id": "ASVS-5.2.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Atacantes podem injetar caracteres de nova linha ou scripts em logs (Log Injection) para forjar entradas ou atacar auditores.",
+    "title": "Encoding de Saída para Logs",
+    "rules": {},
+    "mapping": {
+      "ASVS": "5.2.2",
+      "OWASP": "A09:2021"
+    },
+    "content": "Certifique-se de que dados vindos do usuário sejam encodados ou sanitizados antes de serem gravados em arquivos de log.",
+    "verification": "Tentar injetar caracteres \n ou \r em campos que são logados.",
+    "id": "ASVS-5.2.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Permitir HTML do usuário sem sanitização rigorosa leva diretamente a ataques de Cross-Site Scripting (XSS).",
+    "title": "Sanitização de HTML (DOMPurify)",
+    "rules": {
+      "web_frontend": true
+    },
+    "mapping": {
+      "ASVS": "5.2.4",
+      "OWASP": "A03:2021"
+    },
+    "content": "Se a aplicação aceita HTML, utilize uma biblioteca como DOMPurify para limpar o conteúdo antes da renderização.",
+    "verification": "Submeter HTML com atributos 'onerror' ou tags <script>.",
+    "id": "ASVS-5.2.4",
+    "severity": "Alto"
+  },
+  {
+    "description": "Elimina o risco de execução de comandos SQL arbitrários ao tratar dados do usuário como parâmetros literais, protegendo a integridade e a confidencialidade de todo o banco de dados.",
+    "title": "Injeção de SQL",
+    "rules": {
+      "pii_data": true,
+      "web_api": true,
+      "web_frontend": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "5.3.1",
+      "OWASP": "A03:2021"
+    },
+    "content": "Verifique o uso de consultas parametrizadas ou ORMs seguros.",
+    "verification": "Teste de injeção de aspas simples (') em campos de busca.",
+    "id": "ASVS-5.3.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Scripts maliciosos no browser podem roubar sessões.",
+    "title": "Cross-Site Scripting (XSS)",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "5.3.3",
+      "OWASP": "A03:2021"
+    },
+    "content": "Verifique se os dados de saída são encodados corretamente para o contexto (HTML, JS, CSS).",
+    "verification": "Inserir <script>alert(1)</script> em campos de formulário.",
+    "id": "ASVS-5.3.3",
+    "severity": "Alto"
+  },
+  {
+    "description": "Filtros LDAP mal construídos permitem que atacantes consultem ou modifiquem o diretório de usuários sem autorização.",
+    "title": "Proteção contra Injeção LDAP",
+    "rules": {
+      "database": true
+    },
+    "mapping": {
+      "ASVS": "5.3.4",
+      "OWASP": "A03:2021"
+    },
+    "content": "Utilize escaping adequado para metacaracteres LDAP em filtros de busca gerados dinamicamente.",
+    "verification": "Tentar injetar caracteres '*' ou '(' em campos de busca integrados ao LDAP.",
+    "id": "ASVS-5.3.4",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Consultas NoSQL (como MongoDB) podem ser manipuladas para ignorar autenticação ou extrair dados em massa.",
+    "title": "Proteção contra Injeção NoSQL",
+    "rules": {
+      "database": "nosql"
+    },
+    "mapping": {
+      "ASVS": "5.3.5",
+      "OWASP": "A03:2021"
+    },
+    "content": "Evite o uso de operadores dinâmicos baseados em entrada do usuário; valide tipos de dados rigorosamente.",
+    "verification": "Tentar injetar operadores como { \"$gt\": \"\" } em campos de login/busca.",
+    "id": "ASVS-5.3.5",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Evita que vulnerabilidades na aplicação permitam a execução de comandos diretamente no sistema operacional do servidor, o que poderia resultar em controle total da infraestrutura.",
+    "title": "Injeção de Comandos de SO",
+    "rules": {
+      "pii_data": true,
+      "web_frontend": true
+    },
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "5.3.7",
+      "OWASP": "A03:2021"
+    },
+    "content": "Verifique se entradas do usuário não são passadas diretamente para funções de sistema (ex: exec, system).",
+    "verification": "Tentar injetar comandos como '; ls' ou '& dir'.",
+    "id": "ASVS-5.3.7",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Injeção em consultas XPath pode permitir a extração de dados sensíveis de arquivos de configuração ou bancos de dados XML.",
+    "title": "Proteção contra Injeção XPath",
+    "rules": {},
+    "mapping": {
+      "ASVS": "5.3.8",
+      "OWASP": "A03:2021"
+    },
+    "content": "Utilize consultas parametrizadas ou valide rigorosamente as entradas antes de compor paths XML.",
+    "verification": "Tentar injetar operadores lógicos em campos que consultam XML.",
+    "id": "ASVS-5.3.8",
+    "severity": "Crítico"
+  },
+  {
+    "description": "O Server-Side Request Forgery permite que um atacante use o servidor para atacar a rede interna ou serviços de nuvem (ex: metadados AWS).",
+    "title": "Proteção contra SSRF",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "PCI-DSS": "6.2.4",
+      "ASVS": "5.3.9",
+      "OWASP": "A10:2021"
+    },
+    "content": "Valide URLs de destino contra uma whitelist e bloqueie requisições para 127.0.0.1, localhost e redes privadas.",
+    "verification": "Tentar fornecer 'http://localhost:80' ou 'http://169.254.169.254' em campos de URL.",
+    "id": "ASVS-5.3.9",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Deserializar objetos de fontes não confiáveis pode levar à execução remota de código (RCE) e controle total do sistema.",
+    "title": "Deserialização Segura de Dados",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "5.5.1",
+      "OWASP": "A08:2021"
+    },
+    "content": "Evite formatos de serialização nativos (como Java Serialization ou PHP Unserialize); prefira JSON ou Protobuf.",
+    "verification": "Identificar o uso de serialização e testar com payloads maliciosos.",
+    "id": "ASVS-5.5.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Parsers de JSON vulneráveis podem sofrer ataques de negação de serviço (DoS) ou injeção de propriedades.",
+    "title": "Parsing de JSON Seguro",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "5.5.2",
+      "OWASP": "A04:2021-API"
+    },
+    "content": "Utilize bibliotecas de parsing atualizadas e limite o tamanho e a profundidade máxima do JSON aceito.",
+    "verification": "Enviar JSON extremamente profundo ou com chaves duplicadas.",
+    "id": "ASVS-5.5.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Stored procedures que utilizam SQL dinâmico internamente continuam vulneráveis a injeção de SQL.",
+    "title": "Uso de Stored Procedures Seguras",
+    "rules": {
+      "database": "sql"
+    },
+    "mapping": {
+      "ASVS": "6.1.1",
+      "OWASP": "A03:2021"
+    },
+    "content": "Evite SQL dinâmico dentro de Stored Procedures; utilize apenas parâmetros tipados e consultas estáticas.",
+    "verification": "Revisar o código das Stored Procedures no banco de dados.",
+    "id": "ASVS-6.1.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "O uso de bibliotecas comprometidas (ataque de cadeia de suprimentos) introduz backdoors silenciosos na aplicação.",
+    "title": "Verificação de Autenticidade de Componentes",
+    "rules": {},
+    "mapping": {
+      "ASVS": "6.2.1",
+      "SOC 2": "CC7.1",
+      "OWASP": "A06:2021"
+    },
+    "content": "Utilize ferramentas de análise de dependências (ex: npm audit, Snyk) e verifique assinaturas de pacotes.",
+    "verification": "Executar auditoria de dependências no pipeline de CI/CD.",
+    "id": "ASVS-6.2.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Conhecer vulnerabilidades em bibliotecas não adianta se não houver um processo para atualizá-las e corrigi-las.",
+    "title": "Remediação de Vulnerabilidades em Bibliotecas",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "6.3.2",
+      "ASVS": "6.2.1",
+      "OWASP": "A06:2021"
+    },
+    "content": "Utilize ferramentas de automação para identificar e atualizar bibliotecas com vulnerabilidades conhecidas (CVEs).",
+    "verification": "Revisar o dashboard de vulnerabilidades de dependências.",
+    "id": "ASVS-6.2.1.Vuln",
+    "severity": "Baixo"
+  },
+  {
+    "description": "O desconhecimento sobre as bibliotecas utilizadas impede a reação rápida quando uma nova vulnerabilidade crítica (0-day) é descoberta.",
+    "title": "Inventário de Componentes de Terceiros",
+    "rules": {},
+    "mapping": {
+      "ASVS": "6.2.2",
+      "OWASP": "A06:2021"
+    },
+    "content": "Mantenha um Software Bill of Materials (SBOM) atualizado de todas as dependências do projeto.",
+    "verification": "Verificar a existência de um arquivo SBOM (ex: CycloneDX, SPDX).",
+    "id": "ASVS-6.2.2",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Fornece trilhas de auditoria essenciais para detectar ataques de força bruta ou preenchimento de credenciais em tempo real, permitindo uma resposta rápida a incidentes.",
+    "title": "Log de Falhas de Autenticação",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "7.1.1",
+      "OWASP": "A09:2021"
+    },
+    "content": "Verifique se tentativas de login falhas são registradas com timestamp e IP.",
+    "verification": "Verificar logs após falhas de login.",
+    "id": "ASVS-7.1.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Garante a rastreabilidade de alterações críticas de privilégios, permitindo identificar acessos indevidos ou abusos de autoridade por contas internas ou comprometidas.",
+    "title": "Log de Mudanças de Permissão",
+    "rules": {
+      "pii_data": true,
+      "web_api": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "7.1.2",
+      "OWASP": "A09:2021"
+    },
+    "content": "Verifique se mudanças em papéis (roles) de usuários são logadas.",
+    "verification": "Auditoria de registros de alteração de privilégios.",
+    "id": "ASVS-7.1.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "Alterações maliciosas em regras de firewall ou políticas de senha devem ser detectadas imediatamente para evitar exposição prolongada.",
+    "title": "Log de Mudanças em Políticas de Segurança",
+    "rules": {
+      "admin_interface": true
+    },
+    "mapping": {
+      "PCI-DSS": "10.2.2",
+      "ASVS": "7.1.3",
+      "SOC 2": "CC7.2"
+    },
+    "content": "Registre quem alterou qualquer configuração de segurança do sistema, o valor antigo e o novo.",
+    "verification": "Alterar uma configuração de segurança e verificar o log gerado.",
+    "id": "ASVS-7.1.3",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Logs inconsistentes dificultam a análise automatizada e a correlação de eventos durante um incidente.",
+    "title": "Consistência no Formato de Logs",
+    "rules": {},
+    "mapping": {
+      "ASVS": "7.2.1",
+      "SOC 2": "CC7.2"
+    },
+    "content": "Adote um formato estruturado (ex: JSON) para todos os logs da aplicação, incluindo timestamps ISO 8601.",
+    "verification": "Analisar amostras de logs de diferentes módulos do sistema.",
+    "id": "ASVS-7.2.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Assegura que as evidências de atividades maliciosas não possam ser apagadas ou alteradas por um atacante, mantendo a integridade da investigação e da conformidade legal.",
+    "title": "Proteção de Logs",
+    "rules": {
+      "web_frontend": true
+    },
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "7.4.1",
+      "OWASP": "A09:2021"
+    },
+    "content": "Verifique se os logs são armazenados de forma íntegra e com acesso restrito.",
+    "verification": "Verificar permissões do diretório de logs.",
+    "id": "ASVS-7.4.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Se os logs residirem apenas no servidor local, um invasor que ganhe acesso total poderá apagá-los para ocultar rastros.",
+    "title": "Envio de Logs para Sistema Externo",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "10.5.3",
+      "HIPAA": "164.312(b)",
+      "ASVS": "7.4.2"
+    },
+    "content": "Configure o encaminhamento de logs em tempo real para um servidor centralizado (SIEM ou Log Management).",
+    "verification": "Confirmar a presença dos logs no sistema centralizado.",
+    "id": "ASVS-7.4.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Protege informações críticas contra exposição direta em caso de acesso físico indevido ao servidor ou vazamento de backups, garantindo que os dados permaneçam ilegíveis sem as chaves adequadas.",
+    "title": "Criptografia de Dados Sensíveis em Repouso",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "8.1.1",
+      "OWASP": "A02:2021"
+    },
+    "content": "Verifique se PII e credenciais são criptografados no banco de dados.",
+    "verification": "Inspeção direta em tabelas de banco de dados.",
+    "id": "ASVS-8.1.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Garante que a proteção dos dados utilize algoritmos robustos e atuais que são resistentes a ataques criptoanalíticos conhecidos, mantendo a segurança a longo prazo.",
+    "title": "Uso de Criptografia Forte",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "8.2.1",
+      "OWASP": "A02:2021"
+    },
+    "content": "Verifique o uso de algoritmos modernos como AES-256 ou ChaCha20.",
+    "verification": "Revisão de código de criptografia.",
+    "id": "ASVS-8.2.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "Protege as credenciais dos usuários mesmo em caso de vazamento da base de dados, utilizando algoritmos de derivação de chave que tornam a reversão para texto claro computacionalmente inviável.",
+    "title": "Hashing de Senhas",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "8.3.1",
+      "OWASP": "A02:2021"
+    },
+    "content": "Verifique se as senhas são armazenadas com Salt e usando Argon2, bcrypt ou scrypt.",
+    "verification": "Verificar o formato do hash no banco de dados.",
+    "id": "ASVS-8.3.1",
+    "severity": "Alto"
+  },
+  {
+    "description": "O Pepper adiciona uma camada extra de proteção; mesmo se o banco de dados e o salt vazarem, as senhas ainda estarão protegidas pelo segredo no código.",
+    "title": "Uso de Pepper em Hashes de Senha",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 46",
+      "ASVS": "8.3.2"
+    },
+    "content": "Adicione um valor secreto (pepper) armazenado de forma segura ao processo de hashing das senhas.",
+    "verification": "Revisão de código da função de hashing.",
+    "id": "ASVS-8.3.2",
+    "severity": "Alto"
+  },
+  {
+    "description": "O uso prolongado da mesma chave aumenta a probabilidade de comprometimento; a rotação limita o volume de dados expostos por uma única chave.",
+    "title": "Rotação de Chaves Criptográficas",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "3.6.4",
+      "ASVS": "8.3.3",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Implemente um processo automatizado para rotacionar chaves de criptografia anualmente ou em caso de suspeita de vazamento.",
+    "verification": "Verificar registros de rotação de chaves no sistema de gestão de segredos.",
+    "id": "ASVS-8.3.3",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Evita que atacantes utilizem certificados forjados em dispositivos comprometidos para interceptar o tráfego do aplicativo.",
+    "title": "Certificate Pinning em Apps Móveis",
+    "rules": {
+      "web_api": true
+    },
+    "mapping": {
+      "ASVS": "9.1.3",
+      "OWASP": "A02:2021"
+    },
+    "content": "Implemente o pinning do certificado ou da chave pública da API dentro do aplicativo móvel.",
+    "verification": "Tentar interceptar tráfego do app usando um proxy com certificado próprio.",
+    "id": "ASVS-9.1.3",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Força os navegadores a utilizarem exclusivamente conexões HTTPS, eliminando riscos de ataques de downgrade (como SSLStrip) e interceptação em redes Wi-Fi públicas.",
+    "title": "HSTS - HTTP Strict Transport Security",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 5",
+      "ASVS": "9.2.1",
+      "OWASP": "A05:2021"
+    },
+    "content": "Verifique se o cabeçalho HSTS está presente com tempo de vida longo.",
+    "verification": "Verificação de cabeçalhos de resposta HTTP.",
+    "id": "ASVS-9.2.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Sem uma análise de riscos, a organização não sabe onde investir recursos para proteger dados sensíveis de saúde.",
+    "title": "Análise de Riscos Periódica",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.308(a)(1)(ii)(A)",
+      "SOC 2": "CC3.1"
+    },
+    "content": "Realize uma análise precisa e completa dos riscos potenciais à confidencialidade, integridade e disponibilidade do ePHI.",
+    "verification": "Revisar o documento de Avaliação de Riscos atualizado.",
+    "id": "HIPAA-164.308.a.1.ii.A",
+    "severity": "Baixo"
+  },
+  {
+    "description": "A falta de um plano de continuidade pode paralisar serviços de saúde durante um desastre ou ataque de ransomware.",
+    "title": "Plano de Operação em Modo de Emergência",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.308(a)(7)(ii)(C)",
+      "SOC 2": "CC9.1"
+    },
+    "content": "Estabeleça e implemente procedimentos para permitir a continuação de processos críticos de negócio para proteção de ePHI.",
+    "verification": "Revisar o Plano de Continuidade de Negócio (PCN).",
+    "id": "HIPAA-164.308.a.7.ii.C",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Em situações críticas de saúde, a falta de acesso rápido a dados pode custar vidas, mas o acesso deve ser controlado e auditado.",
+    "title": "Procedimento de Acesso de Emergência",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "HIPAA": "164.312(a)(2)(ii)",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Estabeleça um método para obter acesso a informações de saúde eletrônicas (ePHI) durante emergências, com log obrigatório.",
+    "verification": "Simular uma situação de emergência e verificar o fluxo de acesso.",
+    "id": "HIPAA-164.312.a.2.ii",
+    "severity": "Alto"
+  },
+  {
+    "description": "Alterações não autorizadas em registros médicos podem levar a diagnósticos ou tratamentos incorretos.",
+    "title": "Integridade de Dados de Saúde",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "HIPAA": "164.312(c)(1)",
+      "ASVS": "11.1.2"
+    },
+    "content": "Implemente mecanismos (ex: hashes ou assinaturas digitais) para garantir que o ePHI não seja alterado de forma imprópria.",
+    "verification": "Tentar alterar um registro no banco e verificar se o sistema detecta a violação de integridade.",
+    "id": "HIPAA-164.312.c.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Sem autenticação, não há garantia de que a pessoa que acessa o ePHI é realmente quem ela diz ser.",
+    "title": "Autenticação de Entidade",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.312(d)",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Implemente procedimentos para verificar se a pessoa ou entidade que solicita acesso ao ePHI é a mesma que foi autorizada.",
+    "verification": "Revisar métodos de verificação de identidade em sistemas de saúde.",
+    "id": "HIPAA-164.312.d",
+    "severity": "Crítico"
+  },
+  {
+    "description": "O titular tem o direito legal de saber se seus dados estão sendo tratados e de ter acesso a eles, sob pena de multas severas.",
+    "title": "Confirmação e Acesso aos Dados",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "LGPD": "Art. 18",
+      "HIPAA": "164.524"
+    },
+    "content": "Disponibilize um canal ou funcionalidade para que o usuário solicite e receba um relatório de todos os seus dados pessoais tratados.",
+    "verification": "Testar a funcionalidade de exportação de dados do usuário.",
+    "id": "LGPD-Art.18",
+    "severity": "Alto"
+  },
+  {
+    "description": "O usuário tem o direito de migrar seus dados para outro fornecedor, o que exige um formato de exportação interoperável.",
+    "title": "Portabilidade de Dados",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "LGPD": "Art. 18, IV"
+    },
+    "content": "Forneça os dados pessoais do titular em um formato estruturado, de uso comum e leitura mecânica (ex: JSON ou XML).",
+    "verification": "Baixar os dados do usuário e verificar o formato do arquivo.",
+    "id": "LGPD-Art.18.IV",
+    "severity": "Alto"
+  },
+  {
+    "description": "Manter dados além do necessário ou após a revogação do consentimento viola a privacidade e aumenta a exposição em caso de vazamento.",
+    "title": "Exclusão de Dados Pessoais",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "LGPD": "Art. 19",
+      "HIPAA": "164.526"
+    },
+    "content": "Implemente um fluxo para a exclusão definitiva ou anonimização de dados pessoais a pedido do titular ou após o fim da finalidade.",
+    "verification": "Solicitar a exclusão de uma conta e verificar se os dados sumiram do banco de dados.",
+    "id": "LGPD-Art.19",
+    "severity": "Alto"
+  },
+  {
+    "description": "Omitir ou atrasar a comunicação de um vazamento à ANPD e aos titulares gera multas pesadíssimas e danos à imagem.",
+    "title": "Comunicação de Incidente de Segurança",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 48",
+      "HIPAA": "164.404"
+    },
+    "content": "Mantenha um fluxo para comunicar incidentes de segurança à Autoridade Nacional em prazo razoável (ex: 48h úteis).",
+    "verification": "Verificar se o Plano de Resposta a Incidentes inclui o contato com a ANPD.",
+    "id": "LGPD-Art.48",
+    "severity": "Alto"
+  },
+  {
+    "description": "A falta de clareza sobre como os dados são usados viola a LGPD e pode gerar desconfiança e processos judiciais.",
+    "title": "Transparência no Tratamento",
+    "rules": {},
+    "mapping": {
+      "LGPD": "Art. 6, VI",
+      "SOC 2": "CC1.1"
+    },
+    "content": "Mantenha uma Política de Privacidade clara e acessível, descrevendo todas as finalidades do tratamento de dados.",
+    "verification": "Verificar a presença e a clareza do link da política de privacidade no rodapé.",
+    "id": "LGPD-Art.6.VI",
+    "severity": "Alto"
+  },
+  {
+    "description": "Configurações permissivas de rede permitem o movimento lateral de atacantes entre zonas de segurança.",
+    "title": "Configuração de Firewall e ACLs",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "1.2.1",
+      "SOC 2": "CC6.6"
+    },
+    "content": "Restrinja o tráfego de entrada e saída apenas ao estritamente necessário para a função do sistema, utilizando firewalls.",
+    "verification": "Revisar as regras de segurança do grupo de rede (Security Groups/ACLs).",
+    "id": "PCI-DSS-1.2.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Sem saber quem acessou os dados sensíveis, é impossível identificar vazamentos internos ou abusos de acesso.",
+    "title": "Log de Acesso a Dados de Cartão",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "PCI-DSS": "10.2.1",
+      "LGPD": "Art. 5"
+    },
+    "content": "Registre cada acesso individual aos dados de portadores de cartão (PAN, nome, validade).",
+    "verification": "Verificar se o log registra o ID do usuário ao consultar dados financeiros.",
+    "id": "PCI-DSS-10.2.1.Log",
+    "severity": "Alto"
+  },
+  {
+    "description": "Vulnerabilidades novas surgem diariamente; sem scans regulares, falhas críticas podem permanecer expostas por meses.",
+    "title": "Scans de Vulnerabilidades Periódicos",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "11.3",
+      "SOC 2": "CC7.1"
+    },
+    "content": "Realize scans de vulnerabilidades internos e externos trimestralmente e após qualquer mudança significativa na rede.",
+    "verification": "Revisar relatórios de scan dos últimos 12 meses.",
+    "id": "PCI-DSS-11.3",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Scans automatizados não detectam falhas de lógica complexas; o Pentest manual é essencial para garantir a resiliência.",
+    "title": "Teste de Intrusão Anual (Pentest)",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "11.3.1",
+      "SOC 2": "CC7.1"
+    },
+    "content": "Realize um teste de intrusão anual e após qualquer mudança significativa, cobrindo todo o ambiente do titular do cartão.",
+    "verification": "Revisar o último relatório de Pentest e o status das remediações.",
+    "id": "PCI-DSS-11.3.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Serviços, protocolos e funções não utilizados aumentam a superfície de ataque e podem conter vulnerabilidades não monitoradas.",
+    "title": "Remoção de Serviços Desnecessários",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "2.2.1",
+      "ASVS": "14.2.1"
+    },
+    "content": "Desabilite ou remova todos os serviços e protocolos desnecessários do sistema operacional e do servidor de aplicação.",
+    "verification": "Executar um scan de portas (nmap) contra o servidor.",
+    "id": "PCI-DSS-2.2.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "O armazenamento de dados como o código CVV ou o PIN, mesmo criptografados, viola normas de segurança e aumenta o risco de fraude.",
+    "title": "Não Armazenamento de Dados Sensíveis de Autenticação",
+    "rules": {
+      "pii_data": true
+    },
+    "mapping": {
+      "PCI-DSS": "3.2.1",
+      "LGPD": "Art. 5"
+    },
+    "content": "Verifique se o sistema NUNCA armazena o conteúdo total da tarja magnética, CVV ou PIN após a autorização da transação.",
+    "verification": "Inspecionar tabelas de transação e logs por dados sensíveis de cartão.",
+    "id": "PCI-DSS-3.2.1",
+    "severity": "Crítico"
+  },
+  {
+    "description": "O roubo físico de servidores ou backups permite o acesso a dados de cartão se não houver criptografia em nível de disco.",
+    "title": "Criptografia de Disco para Dados de Cartão",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "3.4.1",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Criptografe todo o armazenamento não volátil (discos, partições) que contenha dados de portadores de cartão.",
+    "verification": "Confirmar a ativação de BitLocker, LUKS ou criptografia de volume gerenciada.",
+    "id": "PCI-DSS-3.4.1.Disk",
+    "severity": "Alto"
+  },
+  {
+    "description": "Malwares podem roubar credenciais, interceptar tráfego ou destruir dados se não houver proteção ativa no servidor.",
+    "title": "Proteção contra Malware",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "5.2",
+      "HIPAA": "164.308(a)(5)(ii)(B)",
+      "SOC 2": "CC6.8"
+    },
+    "content": "Implemente e mantenha soluções antivírus ou EDR (Endpoint Detection and Response) atualizadas em todos os sistemas.",
+    "verification": "Verificar o status e a data da última atualização do antivírus/EDR.",
+    "id": "PCI-DSS-5.2",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Desenvolvedores sem conhecimento de segurança tendem a repetir erros comuns de codificação (OWASP Top 10).",
+    "title": "Treinamento em Desenvolvimento Seguro",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "6.2.2",
+      "SOC 2": "CC1.2"
+    },
+    "content": "Forneça treinamento anual em técnicas de codificação segura para toda a equipe de desenvolvimento.",
+    "verification": "Revisar registros de treinamento e certificados da equipe.",
+    "id": "PCI-DSS-6.2.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Permissões concedidas de forma ad-hoc tornam a gestão de acesso impossível e levam ao acúmulo de privilégios indevidos.",
+    "title": "Acesso Baseado na Função (RBAC)",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "7.2.1",
+      "SOC 2": "CC6.3"
+    },
+    "content": "Defina papéis (roles) baseados na função do cargo e atribua permissões mínimas a cada papel.",
+    "verification": "Revisar a matriz de perfis de acesso vs. cargos.",
+    "id": "PCI-DSS-7.2.1.Job",
+    "severity": "Alto"
+  },
+  {
+    "description": "Processos de reset de senha fracos permitem que atacantes sequestrem contas por engenharia social com o suporte técnico.",
+    "title": "Verificação de Identidade para Reset de Senha",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "8.2.2",
+      "ASVS": "2.2.1"
+    },
+    "content": "Verifique a identidade do usuário por meio de um segundo fator antes de realizar o reset de senha administrativo.",
+    "verification": "Testar o procedimento de reset de senha via suporte/admin.",
+    "id": "PCI-DSS-8.2.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "A falta de valores éticos documentados pode levar a comportamentos que ignoram a segurança e a conformidade.",
+    "title": "Compromisso com a Integridade Ética",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "12.1.1",
+      "SOC 2": "CC1.1"
+    },
+    "content": "Estabeleça e comunique um código de conduta que inclua responsabilidades de segurança para todos os funcionários.",
+    "verification": "Revisar o código de conduta e evidência de aceite pelos funcionários.",
+    "id": "SOC2-CC1.1",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Mudanças no negócio ou tecnologia podem invalidar controles de segurança existentes, criando novas vulnerabilidades.",
+    "title": "Identificação de Mudanças que Afetam Segurança",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "6.4",
+      "SOC 2": "CC3.2"
+    },
+    "content": "Implemente um processo de gestão de mudanças que avalie o impacto na segurança antes da implementação.",
+    "verification": "Revisar tickets de mudança e a seção de avaliação de risco/segurança.",
+    "id": "SOC2-CC3.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "A falta de identificação única e senhas fortes permite que qualquer pessoa acesse o sistema sem rastreabilidade.",
+    "title": "Controles de Acesso Lógico",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "8.2.1",
+      "HIPAA": "164.312(a)(1)",
+      "SOC 2": "CC6.1"
+    },
+    "content": "Exija IDs de usuário únicos e autenticação forte para todos os acessos a sistemas e dados.",
+    "verification": "Tentar criar uma conta sem senha ou com ID compartilhado.",
+    "id": "SOC2-CC6.1.Logical",
+    "severity": "Alto"
+  },
+  {
+    "description": "Processos de cadastro ou desligamento mal geridos permitem que usuários mantenham acesso a sistemas após saírem da organização.",
+    "title": "Gestão de Registro de Usuários",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "7.2.2",
+      "SOC 2": "CC6.2"
+    },
+    "content": "Implemente um processo formal para registrar, alterar e desativar usuários de forma tempestiva.",
+    "verification": "Verificar se usuários desligados ainda possuem contas ativas.",
+    "id": "SOC2-CC6.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "O acesso físico não autorizado a servidores permite o roubo de dados, instalação de keyloggers ou reinicialização do sistema.",
+    "title": "Controle de Acesso Físico",
+    "rules": {},
+    "mapping": {
+      "HIPAA": "164.310(a)(1)",
+      "SOC 2": "CC6.4"
+    },
+    "content": "Restrinja o acesso físico a data centers e áreas sensíveis apenas a pessoal autorizado, com registro de entrada/saída.",
+    "verification": "Verificar logs de acesso ao data center ou sala de servidores.",
+    "id": "SOC2-CC6.4",
+    "severity": "Alto"
+  },
+  {
+    "description": "A falta de firewalls ou IPS na borda deixa a infraestrutura interna exposta a ataques diretos da internet.",
+    "title": "Proteção de Fronteira Externa",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "1.2.1",
+      "SOC 2": "CC6.6"
+    },
+    "content": "Implemente proteção de borda com Firewall, IDS/IPS para detectar e bloquear tráfego malicioso.",
+    "verification": "Verificar a presença e configuração de dispositivos de segurança de rede.",
+    "id": "SOC2-CC6.6",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Dados transmitidos em texto claro podem ser interceptados em trânsito por sniffers na rede.",
+    "title": "Criptografia na Transmissão",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "4.1.1",
+      "HIPAA": "164.312(e)(1)",
+      "SOC 2": "CC6.7"
+    },
+    "content": "Utilize criptografia (TLS) para proteger a confidencialidade e integridade dos dados durante a transmissão em redes públicas.",
+    "verification": "Tentar capturar tráfego via Wireshark e verificar se está ilegível.",
+    "id": "SOC2-CC6.7",
+    "severity": "Crítico"
+  },
+  {
+    "description": "Sem monitoramento proativo, ataques podem durar semanas ou meses antes de serem detectados, maximizando o dano.",
+    "title": "Monitoramento de Incidentes de Segurança",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "10.6.1",
+      "HIPAA": "164.308(a)(1)(ii)(D)",
+      "SOC 2": "CC7.2"
+    },
+    "content": "Configure alertas automáticos para atividades suspeitas (ex: acessos admin fora de hora, exportações massivas de dados).",
+    "verification": "Simular uma atividade suspeita e verificar se o alerta foi disparado.",
+    "id": "SOC2-CC7.2",
+    "severity": "Baixo"
+  },
+  {
+    "description": "Sem um plano de resposta, a organização reage de forma desorganizada, aumentando o tempo de inatividade e o prejuízo.",
+    "title": "Plano de Resposta a Incidentes",
+    "rules": {},
+    "mapping": {
+      "PCI-DSS": "12.10.1",
+      "HIPAA": "164.308(a)(6)(i)",
+      "SOC 2": "CC7.3"
+    },
+    "content": "Mantenha um plano documentado que defina papéis, responsabilidades e procedimentos para lidar com incidentes de segurança.",
+    "verification": "Revisar o Plano de Resposta a Incidentes (PRI) atualizado.",
+    "id": "SOC2-CC7.3",
+    "severity": "Baixo"
+  },
+  {
+    "id": "SEC-COM-TLS",
+    "title": "Configuração Segura de TLS/HTTPS",
+    "category": "Sistema",
+    "description": "Estabelece uma comunicação criptografada robusta, garantindo que os dados não sejam interceptados ou decifrados por ataques Man-in-the-Middle ou quebra de cifras fracas.",
+    "content": "Forçe o uso de TLS 1.2 ou superior e desabilite cifras obsoletas (DES, 3DES, RC4). Utilize apenas algoritmos que suportem Perfect Forward Secrecy (PFS).",
+    "severity": "Crítico",
+    "verification": "Executar um scan de SSL (ex: SSL Labs ou nmap --script ssl-enum-ciphers).",
+    "rules": {},
+    "mapping": {
+      "ASVS": "9.1.1, 9.1.2",
+      "PCI-DSS": "4.1.1",
+      "LGPD": "Art. 46",
+      "HIPAA": "164.312(e)(1)",
+      "OWASP": "A02:2021"
+    }
+  },
+  {
+    "id": "MASVS-STORAGE-1",
+    "title": "Armazenamento Seguro de Credenciais",
+    "description": "Credenciais armazenadas de forma insegura no sistema de arquivos podem ser acessadas por atacantes com acesso físico ou via malware.",
+    "content": "Utilize exclusivamente o Android Keystore System ou iOS Keychain para armazenar credenciais e chaves criptográficas, garantindo proteção por hardware (TEE/SE).",
+    "severity": "Crítico",
+    "verification": "Inspecionar o sandbox do aplicativo e backups para garantir que credenciais não estão em arquivos XML/Property List em texto claro.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "STORAGE-1",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-STORAGE-2",
+    "title": "Minimização de Dados Sensíveis em Logs",
+    "description": "Logs do sistema podem ser lidos por outros aplicativos ou extraídos via depuração, expondo informações sensíveis do usuário.",
+    "content": "Desabilite logs detalhados em ambiente de produção e garanta que PII, tokens e segredos nunca sejam escritos no Logcat (Android) ou Syslog (iOS).",
+    "severity": "Alto",
+    "verification": "Analisar a saída do logcat/console do dispositivo durante o uso de fluxos sensíveis (login, pagamento).",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "STORAGE-2",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-STORAGE-3",
+    "title": "Configuração de Backup Seguro",
+    "description": "Backups automáticos do sistema operacional podem incluir dados sensíveis se não houver configuração explícita de exclusão.",
+    "content": "Configure o arquivo 'allowBackup=false' no AndroidManifest ou defina regras de exclusão no 'backup_rules.xml'; no iOS, marque arquivos sensíveis com 'NSURLIsExcludedFromBackupKey'.",
+    "severity": "Alto",
+    "verification": "Realizar um backup do dispositivo e inspecionar seu conteúdo em busca de arquivos de dados do aplicativo.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "STORAGE-3",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-STORAGE-4",
+    "title": "Isolamento de Dados Sensíveis na Memória",
+    "description": "Dados sensíveis mantidos em memória RAM por longos períodos podem ser extraídos através de dumps de memória.",
+    "content": "Sobrescreva dados sensíveis (senhas, chaves) na memória assim que não forem mais necessários, utilizando estruturas de dados que permitam limpeza explícita.",
+    "severity": "Médio",
+    "verification": "Realizar dump de memória do processo do aplicativo e buscar por strings sensíveis conhecidas.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "STORAGE-4",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-CRYPTO-1",
+    "title": "Uso de Criptografia Robusta",
+    "description": "O uso de algoritmos fracos ou implementações customizadas facilita a quebra da proteção de dados.",
+    "content": "Utilize apenas primitivas criptográficas robustas e atualizadas (ex: AES-GCM, RSA-2048+) fornecidas pelas bibliotecas nativas do sistema operacional.",
+    "severity": "Crítico",
+    "verification": "Revisar o código-fonte em busca de implementações de criptografia e verificar os algoritmos e modos de operação utilizados.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "CRYPTO-1",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-CRYPTO-2",
+    "title": "Gestão de Chaves por Hardware",
+    "description": "Chaves criptográficas armazenadas puramente em software podem ser extraídas se o sistema operacional for comprometido.",
+    "content": "Gere e utilize chaves criptográficas que sejam protegidas pelo hardware do dispositivo (TEE ou Secure Element), garantindo que a chave privada nunca saia do hardware.",
+    "severity": "Crítico",
+    "verification": "Verificar a configuração da geração de chaves (KeyGenParameterSpec no Android) para exigir proteção por hardware.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "CRYPTO-2",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-CRYPTO-3",
+    "title": "Proibição de Chaves Hardcoded",
+    "description": "Chaves embutidas no código-fonte são facilmente extraídas via engenharia reversa do binário.",
+    "content": "Nunca armazene chaves criptográficas, segredos de API ou salts diretamente no código-fonte ou em arquivos de recursos.",
+    "severity": "Crítico",
+    "verification": "Realizar engenharia reversa (strings, descompilação) e buscar por padrões de chaves e segredos.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "CRYPTO-3",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-AUTH-1",
+    "title": "Autenticação Biométrica Segura",
+    "description": "Implementações biométricas fracas podem ser burladas se não houver validação da integridade do hardware.",
+    "content": "Utilize as APIs oficiais (BiometricPrompt no Android, LocalAuthentication no iOS) e vincule a chave criptográfica sensível ao sucesso da autenticação biométrica.",
+    "severity": "Alto",
+    "verification": "Testar a autenticação biométrica e garantir que o fallback (PIN/Senha) siga políticas de complexidade.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "AUTH-1",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-AUTH-2",
+    "title": "Invalidação de Sessão no Logout",
+    "description": "Se a sessão não for invalidada corretamente, tokens antigos podem ser reutilizados para acesso não autorizado.",
+    "content": "Ao realizar o logout, limpe todos os tokens e dados sensíveis do armazenamento local e notifique o servidor para invalidar a sessão remotamente.",
+    "severity": "Alto",
+    "verification": "Tentar utilizar um token de sessão capturado após o usuário ter realizado o logout.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "AUTH-2",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-AUTH-3",
+    "title": "Política de Bloqueio de Tela Sensível",
+    "description": "Capturas de tela automáticas do sistema operacional podem expor dados sensíveis em visualizadores de tarefas recentes.",
+    "content": "Implemente proteções contra captura de tela em telas sensíveis (FLAG_SECURE no Android) e oculte o conteúdo do aplicativo quando ele for para segundo plano no iOS.",
+    "severity": "Médio",
+    "verification": "Tentar tirar print da tela e verificar se o sistema bloqueia ou gera uma imagem preta; verificar o visualizador de tarefas recentes.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "AUTH-3",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-NETWORK-1",
+    "title": "Comunicação TLS Obrigatória",
+    "description": "Tráfego em texto claro (HTTP) permite a interceptação de dados e ataques MITM em redes Wi-Fi.",
+    "content": "Utilize exclusivamente HTTPS com TLS 1.2+ e desabilite suporte a protocolos e cifras obsoletas. Configure o Network Security Configuration (Android) ou App Transport Security (iOS).",
+    "severity": "Crítico",
+    "verification": "Inspecionar o tráfego de rede e garantir que não há conexões HTTP ou TLS com versões vulneráveis.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "NETWORK-1",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-NETWORK-2",
+    "title": "Implementação de SSL Pinning",
+    "description": "Atacantes podem usar certificados forjados em dispositivos comprometidos para descriptografar o tráfego TLS.",
+    "content": "Implemente o pinning da chave pública (Public Key Pinning) para os domínios da API para garantir que o app se comunique apenas com o servidor legítimo.",
+    "severity": "Alto",
+    "verification": "Tentar interceptar o tráfego do aplicativo utilizando um proxy (Burp Suite/Charles) com certificado de CA customizado.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "NETWORK-2",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-PLATFORM-1",
+    "title": "Princípio do Menor Privilégio de Permissões",
+    "description": "Permissões excessivas aumentam a superfície de ataque e podem ser abusadas por malware no dispositivo.",
+    "content": "Solicite apenas as permissões estritamente necessárias para a funcionalidade do app e remova permissões obsoletas do manifesto.",
+    "severity": "Médio",
+    "verification": "Revisar o manifesto do aplicativo e justificar a necessidade de cada permissão solicitada.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "PLATFORM-1",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-PLATFORM-2",
+    "title": "Validação de Entradas de Fontes Externas",
+    "description": "Deep links e intents mal formados podem levar a ataques de injeção ou execução de código.",
+    "content": "Valide e sanitize rigorosamente todos os dados recebidos via Deep Links, Intents (Android) ou URL Schemes (iOS) antes de processá-los.",
+    "severity": "Alto",
+    "verification": "Tentar disparar deep links com payloads maliciosos para verificar o comportamento do aplicativo.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "PLATFORM-2",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-CODE-1",
+    "title": "Ofuscação de Código-Fonte",
+    "description": "Código não ofuscado facilita a engenharia reversa, permitindo que atacantes entendam a lógica de negócio e encontrem falhas.",
+    "content": "Utilize ferramentas de ofuscação (ProGuard, R8, DexGuard) para renomear classes, métodos e campos, dificultando a análise estática.",
+    "severity": "Médio",
+    "verification": "Descompilar o binário (APK/IPA) e verificar se o código resultante é difícil de ler e entender.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "CODE-1",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-RESILIENCE-1",
+    "title": "Detecção de Root e Jailbreak",
+    "description": "Dispositivos com Root ou Jailbreak possuem as proteções de sandbox do SO desabilitadas, facilitando ataques.",
+    "content": "Implemente mecanismos para detectar se o dispositivo está em estado de Root ou Jailbreak e aplique políticas de restrição de uso (ex: encerrar o app).",
+    "severity": "Alto",
+    "verification": "Executar o aplicativo em um dispositivo com root/jailbreak e verificar se ele detecta e bloqueia o acesso.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "RESILIENCE-1",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-RESILIENCE-2",
+    "title": "Detecção de Depuração (Anti-Debug)",
+    "description": "Atacantes utilizam debuggers para analisar o comportamento do app em tempo de execução e extrair chaves da memória.",
+    "content": "Implemente verificações em tempo de execução para detectar se um depurador está anexado ao processo do aplicativo e encerre a execução se detectado.",
+    "severity": "Médio",
+    "verification": "Tentar anexar um debugger (jdb, lldb) ao processo do aplicativo em execução.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "RESILIENCE-2",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-RESILIENCE-3",
+    "title": "Detecção de Hooks de Runtime",
+    "description": "Ferramentas como Frida e Xposed permitem injetar código e alterar o comportamento do app em tempo de execução.",
+    "content": "Implemente detecções para identificar a presença de frameworks de hook e instrumentação dinâmica no ambiente de execução.",
+    "severity": "Alto",
+    "verification": "Tentar utilizar o Frida para interceptar chamadas de métodos sensíveis no aplicativo.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "RESILIENCE-3",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-RESILIENCE-4",
+    "title": "Verificação de Integridade do Binário",
+    "description": "Binários modificados podem conter backdoors ou funcionalidades maliciosas injetadas.",
+    "content": "Implemente verificações de integridade que validem a assinatura do pacote e o checksum dos arquivos principais durante a inicialização.",
+    "severity": "Alto",
+    "verification": "Tentar modificar um recurso ou string no binário, reassinar e verificar se o app detecta a alteração.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "RESILIENCE-4",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  },
+  {
+    "id": "MASVS-RESILIENCE-5",
+    "title": "Detecção de Ambiente de Emulação",
+    "description": "Emuladores são frequentemente usados por pesquisadores de segurança e atacantes para analisar o comportamento do app em escala.",
+    "content": "Implemente verificações para identificar se o aplicativo está sendo executado em um emulador e aplique políticas de segurança adaptativas.",
+    "severity": "Baixo",
+    "verification": "Executar o aplicativo em emuladores populares (Genymotion, Android Studio Emulator) e verificar a detecção.",
+    "rules": {
+      "mobile_app": true
+    },
+    "mapping": {
+      "MASVS": "RESILIENCE-5",
+      "OWASP": "Mobile Top 10 M1:2024"
+    }
+  }
+]

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: sentinel_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sentinel_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: sentinel_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_HOST=db
+      - DB_NAME=sentinel_db
+      - DATA_PATH=/data/knowledge_base.json
+    depends_on:
+      - db
+    volumes:
+      - ./data:/data
+
+  frontend:
+    image: nginx:alpine
+    container_name: sentinel_frontend
+    ports:
+      - "80:80"
+    volumes:
+      - ./web:/usr/share/nginx/html
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

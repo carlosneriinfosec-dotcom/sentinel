@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Sentinel SRaC - Dark Pro v1.6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f111a;
+            --bg-card: #1a1c2a;
+            --bg-input: #24273a;
+            --text-main: #e0e6ed;
+            --text-dim: #94a3b8;
+            --primary-blue: #38bdf8;
+            --primary-green: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --api-color: var(--primary-blue);
+            --sys-color: var(--primary-green);
+            --mob-color: #f472b6;
+        }
+
+        body { font-family: 'Roboto', sans-serif; background: var(--bg-deep); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: 0 auto; background: var(--bg-card); padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #2d314d; }
+        h1 { border-bottom: 2px solid var(--primary-green); padding-bottom: 15px; display: flex; align-items: center; justify-content: space-between; color: var(--primary-blue); }
+        .survey-section, .results-section { margin-bottom: 40px; }
+        .question { margin-bottom: 20px; background: var(--bg-input); padding: 20px; border-radius: 8px; border-left: 4px solid var(--primary-blue); }
+        label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 14px; color: var(--text-dim); }
+        select, input { width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; color: white; box-sizing: border-box; }
+        button { background: linear-gradient(135deg, var(--primary-blue), #0ea5e9); color: white; border: none; padding: 18px; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold; width: 100%; transition: 0.3s; }
+        button:hover { transform: translateY(-2px); filter: brightness(1.2); }
+        
+        .risk-dashboard { background: linear-gradient(145deg, #1e293b, #0f172a); padding: 25px; border-radius: 12px; margin-bottom: 35px; border: 1px solid #334155; }
+        .risk-bar-container { background: #334155; height: 30px; border-radius: 15px; overflow: hidden; position: relative; }
+        .risk-bar-fill { background: var(--primary-green); height: 100%; width: 0%; transition: 0.8s; }
+        .risk-bar-text { position: absolute; width: 100%; text-align: center; font-size: 13px; font-weight: bold; line-height: 30px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .stat-grid { display: flex; justify-content: space-between; gap: 15px; margin-top: 20px; }
+        .stat-card { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; flex: 1; text-align: center; border: 1px solid #334155; }
+        .stat-card b { display: block; font-size: 22px; color: var(--primary-blue); }
+
+        .requirement-card { border-left: 6px solid var(--primary-blue); background: #232738; padding: 25px; margin-bottom: 25px; border-radius: 8px; position: relative; border: 1px solid #2d314d; }
+        .severity { position: absolute; top: 25px; right: 25px; font-size: 11px; font-weight: bold; padding: 5px 12px; border-radius: 4px; color: white; text-transform: uppercase; }
+        .sev-critico { background: var(--danger); box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+        .sev-alto { background: var(--warning); color: black; }
+        .sev-medio { background: var(--primary-blue); }
+        .sev-baixo { background: #64748b; }
+
+        .verification { margin-top: 15px; padding: 15px; background: rgba(34, 197, 94, 0.1); border: 1px dashed var(--primary-green); border-radius: 6px; font-size: 13px; color: #bef264; margin-bottom: 20px; }
+
+        .status-section select { height: 40px; padding: 5px 10px; line-height: 30px; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 4px; }
+        .category-header { font-size: 22px; font-weight: bold; padding: 15px; border-radius: 8px; margin: 40px 0 20px 0; background: rgba(255,255,255,0.03); }
+        .cat-api { border-left: 6px solid var(--api-color); color: var(--api-color); }
+        .cat-sys { border-left: 6px solid var(--sys-color); color: var(--primary-green); }
+        .cat-mob { border-left: 6px solid var(--mob-color); color: var(--mob-color); }
+        .badge { display: inline-block; background: #334155; padding: 4px 12px; border-radius: 4px; margin-right: 10px; margin-top: 5px; color: var(--primary-green); border: 1px solid #475569; font-size: 11px; }
+        #results { display: none; }
+        .status-section { margin-top: 20px; padding-top: 20px; border-top: 1px solid #334155; display: flex; gap: 20px; align-items: center; }
+        .toggle-container { display: flex; align-items: center; gap: 15px; background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 25px; }
+        .toggle-container input { width: 20px; height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Sentinel SRaC <span style="font-size: 12px; background: var(--primary-blue); color: #0f172a; padding: 6px 12px; border-radius: 20px; font-weight: bold;">v1.6 DARK PRO</span></h1>
+
+    <div class="survey-section" id="survey">
+        <h2>Perfilamento de Segurança</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+            <div class="question">
+                <label>Stack Principal</label>
+                <select id="language">
+                    <option value="java">Java (Spring Boot)</option>
+                    <option value="dotnet">.NET (ASP.NET Core)</option>
+                    <option value="python">Python (FastAPI/Django)</option>
+                    <option value="javascript">Node.js (Express/Nest)</option>
+                    <option value="php">PHP (Laravel/Symfony)</option>
+                    <option value="go">Go (Gin/Echo)</option>
+                    <option value="ruby">Ruby (Rails)</option>
+                    <option value="c_cpp">C / C++</option>
+                </select>
+            </div>
+            <div class="question"><label>Criticidade</label><select id="business_criticality"><option value="baixa">Baixa</option><option value="media" selected>Média</option><option value="alta">Alta</option></select></div>
+            <div class="question"><label>Rigor</label><select id="rigor"><option value="essencial">Essencial</option><option value="padrao" selected>Padrão</option><option value="completo">Completo</option></select></div>
+        </div>
+
+        <div class="toggle-container">
+            <input type="checkbox" id="top10_only">
+            <label for="top10_only" style="margin:0; cursor:pointer; color: var(--primary-blue);"><b>Modo OWASP Top 10 Only</b> (Focar no Crítico)</label>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
+            <div class="question"><label>Dados PII?</label><select id="pii_data"><option value="true">Sim</option><option value="false">Não</option></select></div>
+            <div class="question"><label>Banco SQL?</label><select id="database"><option value="sql">Sim</option><option value="nosql">Não</option></select></div>
+            <div class="question"><label>Expõe APIs?</label><select id="web_api"><option value="true" selected>Sim</option><option value="false">Não</option></select></div>
+            <div class="question"><label>Mobile App?</label><select id="mobile_app"><option value="true">Sim</option><option value="false" selected>Não</option></select></div>
+        </div>
+        <button onclick="generateRequirements()">GERAR PLANO ESTRATÉGICO</button>
+    </div>
+
+    <div class="results-section" id="results">
+        <div class="risk-dashboard">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 style="margin:0; color: white;">PROTEÇÃO ATUAL</h2>
+                <div id="riskScoreValue" style="font-size: 32px; font-weight: bold; color: var(--primary-green);">0%</div>
+            </div>
+            <div class="risk-bar-container"><div id="riskBar" class="risk-bar-fill"></div><div class="risk-bar-text">PROGRESSO DE IMPLEMENTAÇÃO</div></div>
+            <div class="stat-grid" id="dashboardStats"></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:15px; margin-bottom:30px;">
+            <button onclick="exportResults('pdf')" style="width: auto; padding: 10px 25px; font-size: 13px; background: #334155; border: 1px solid var(--primary-blue);">PDF</button>
+            <button onclick="window.location.reload()" style="width: auto; padding: 10px 25px; font-size: 13px; background: transparent; border: 1px solid #475569;">VOLTAR</button>
+        </div>
+        <div id="reqContent"></div>
+    </div>
+</div>
+
+<script>
+    let currentRequirements = [];
+
+    function getSurveyData() {
+        return {
+            language: document.getElementById('language').value,
+            pii_data: document.getElementById('pii_data').value === 'true',
+            database: document.getElementById('database').value,
+            web_api: document.getElementById('web_api').value === 'true',
+            web_frontend: true,
+            mobile_app: document.getElementById('mobile_app').value === 'true',
+            business_criticality: document.getElementById('business_criticality').value,
+            top10_only: document.getElementById('top10_only').checked,
+            rigor: document.getElementById('rigor').value
+        };
+    }
+
+    async function exportResults(format) {
+        const params = new URLSearchParams(getSurveyData());
+        window.open(`http://localhost:8000/export/${format}?${params.toString()}`, '_blank');
+    }
+
+    async function generateRequirements() {
+        const params = new URLSearchParams(getSurveyData());
+        try {
+            const response = await fetch(`http://localhost:8000/requirements?${params.toString()}`);
+            currentRequirements = await response.json();
+            renderResults();
+        } catch (error) { alert("Erro ao conectar com o Backend."); }
+    }
+
+    async function updateStatus(code) {
+        const status = document.getElementById(`status-${code}`).value;
+        const notes = document.getElementById(`notes-${code}`).value;
+        try {
+            await fetch(`http://localhost:8000/requirements/${code}/status`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status, notes })
+            });
+            const req = currentRequirements.find(r => r.id === code);
+            if (req) req.status = status;
+            calculateRisk();
+        } catch (error) {}
+    }
+
+    function calculateRisk() {
+        const weights = { "Crítico": 10, "Alto": 7, "Médio": 3, "Baixo": 1 };
+        let totalWeight = 0, implementedWeight = 0;
+        const counts = { "Crítico": 0, "Alto": 0, "Total": currentRequirements.length };
+
+        currentRequirements.forEach(req => {
+            const w = weights[req.severity] || 3;
+            totalWeight += w;
+            if (req.severity === 'Crítico') counts['Crítico']++;
+            if (req.severity === 'Alto') counts['Alto']++;
+            if (req.status === 'Implementado') implementedWeight += w;
+            else if (req.status === 'N/A') totalWeight -= w;
+        });
+
+        const progress = totalWeight > 0 ? Math.round((implementedWeight / totalWeight) * 100) : 0;
+        document.getElementById('riskBar').style.width = `${progress}%`;
+        document.getElementById('riskScoreValue').innerText = `${progress}%`;
+        document.getElementById('dashboardStats').innerHTML = `
+            <div class="stat-card"><b>${counts['Crítico']}</b><span>Críticos</span></div>
+            <div class="stat-card"><b>${counts['Alto']}</b><span>Altos</span></div>
+            <div class="stat-card"><b>${currentRequirements.length}</b><span>Total Itens</span></div>
+            <div class="stat-card" style="border-color: var(--primary-green)"><b>${progress}%</b><span>Seguro</span></div>
+        `;
+    }
+
+    function renderResults() {
+        const content = document.getElementById('reqContent');
+        content.innerHTML = '';
+        const cats = { "Mobile": "cat-mob", "API": "cat-api", "Sistema": "cat-sys" };
+        const icons = { "Mobile": "📱", "API": "📡", "Sistema": "⚙️" };
+        const labels = { "Mobile": "SEGURANÇA MOBILE (DISPOSITIVO)", "API": "SEGURANÇA DE APIS (COMUNICAÇÃO)", "Sistema": "SEGURANÇA DE SISTEMA (GOVERNANÇA)" };
+
+        for (let cat in cats) {
+            const reqs = currentRequirements.filter(r => r.category === cat);
+            if (reqs.length > 0) {
+                content.innerHTML += `<div class="category-header ${cats[cat]}">${icons[cat]} ${labels[cat]}</div>`;
+                reqs.forEach(req => {
+                    const sevClass = `sev-${req.severity.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`;
+                    let mappings = '';
+                    for (let key in req.mapping) mappings += `<span class="badge"><b>${key}:</b> ${req.mapping[key]}</span>`;
+                    
+                    content.innerHTML += `
+                        <div class="requirement-card">
+                            <div class="severity ${sevClass}">${req.severity}</div>
+                            <h3 style="color:var(--primary-blue); margin-bottom:15px;">${req.id}: ${req.title}</h3>
+                            <p><b>Instrução:</b> ${req.content}</p>
+                            <p style="font-size:13px; color:var(--text-dim); background:rgba(0,0,0,0.2); padding:12px; border-left:3px solid var(--primary-blue); margin:15px 0; border-radius:0 4px 4px 0;"><b>Descrição:</b> ${req.description}</p>
+                            ${req.verification ? `<div class="verification"><b>TESTE RECOMENDADO:</b> ${req.verification}</div>` : ''}
+                            <div class="mapping">${mappings}</div>
+                            <div class="status-section">
+                                <div style="flex:1">
+                                    <select id="status-${req.id}" onchange="updateStatus('${req.id}')" style="height:35px; background:#0f172a;">
+                                        <option value="Pendente" ${req.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                                        <option value="Implementado" ${req.status === 'Implementado' ? 'selected' : ''}>Implementado</option>
+                                        <option value="N/A" ${req.status === 'N/A' ? 'selected' : ''}>N/A</option>
+                                    </select>
+                                </div>
+                                <div style="flex:3">
+                                    <input id="notes-${req.id}" onblur="updateStatus('${req.id}')" placeholder="Notas de evidência..." value="${req.notes}" style="height:35px; background:#0f172a;">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+        document.getElementById('survey').style.display = 'none';
+        document.getElementById('results').style.display = 'block';
+        calculateRisk();
+    }
+</script>
+
+</body>
+</html>

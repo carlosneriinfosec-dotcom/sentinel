@@ -1,0 +1,175 @@
+from fastapi import FastAPI, Depends, HTTPException, Response
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import create_engine, Column, Integer, String, JSON, DateTime
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, Session
+from pydantic import BaseModel
+import datetime
+from typing import List, Optional
+import json
+import os
+import io
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable
+from reportlab.lib.units import inch
+
+# --- CONFIGURAÇÕES ---
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DATA_PATH = os.getenv("DATA_PATH", "../../data/knowledge_base.json")
+
+if DB_USER and DB_PASSWORD and DB_HOST and DB_NAME:
+    SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+else:
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./sentinel_v6.db"
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# --- MODELOS ---
+class KnowledgeBase(Base):
+    __tablename__ = "knowledge_base"
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True)
+    title = Column(String)
+    description = Column(String)
+    content = Column(String)
+    severity = Column(String, default="Médio")
+    verification_instructions = Column(String)
+    rules = Column(JSON)
+    mapping = Column(JSON)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class RequirementStatus(Base):
+    __tablename__ = "requirement_status"
+    id = Column(Integer, primary_key=True, index=True)
+    requirement_code = Column(String, unique=True, index=True)
+    status = Column(String, default="Pendente")
+    notes = Column(String, default="")
+    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+# --- FastAPI SETUP ---
+app = FastAPI(title="Sentinel SRaC API")
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+def get_db():
+    db = SessionLocal()
+    try: yield db
+    finally: db.close()
+
+class StatusUpdate(BaseModel):
+    status: str
+    notes: Optional[str] = ""
+
+# --- ENDPOINTS ---
+@app.get("/requirements", response_model=List[dict])
+def get_requirements(
+    language: str, pii_data: bool = False, database: str = "sql",
+    web_api: bool = False, web_frontend: bool = False,
+    mobile_app: bool = False, business_criticality: str = "media",
+    top10_only: bool = False, rigor: str = "essencial",
+    db: Session = Depends(get_db)
+):
+    all_requirements = db.query(KnowledgeBase).all()
+    
+    INTEL_MATRIX = {
+        "java": {"A08:2021": 2.0, "CWE-502": 2.0, "A06:2021": 1.5},
+        "dotnet": {"A03:2021": 1.5, "A05:2021": 1.5, "XXE": 2.0},
+        "javascript": {"XSS": 2.0, "A01:2021": 1.5, "A03:2021": 1.5},
+        "python": {"A08:2021": 1.5, "A03:2021": 1.5},
+        "php": {"A03:2021": 2.0, "RCE": 2.0, "A01:2021": 2.0},
+        "c_cpp": {"BUFFER": 2.0, "MEMORY": 2.0},
+        "go": {"RACE": 1.5}, "ruby": {"A08:2021": 2.0}
+    }
+    
+    context = {"language": language, "pii_data": pii_data, "database": database, "web_api": web_api, "web_frontend": web_frontend, "mobile_app": mobile_app}
+    
+    filtered = []
+    for req in all_requirements:
+        if top10_only and (not req.mapping or "OWASP" not in str(req.mapping).upper()): continue
+        
+        if rigor == "essencial":
+            is_critical = req.severity == "Crítico"
+            is_owasp = req.mapping and "OWASP" in str(req.mapping).upper()
+            if not (is_critical or is_owasp): continue
+        elif rigor == "padrao" and req.severity == "Baixo": continue
+        
+        match = True
+        rules = req.rules or {}
+        for k, v in rules.items():
+            user_val = context.get(k)
+            if k == "language" and v != language: match = False; break
+            if k == "database":
+                if isinstance(v, str) and v != user_val: match = False; break
+                elif v is True and user_val is False: match = False; break
+            elif isinstance(v, bool) and v and user_val is False: match = False; break
+        
+        if match:
+            category = "Sistema"
+            mapping_str = str(req.mapping).upper()
+            title_upper = req.title.upper()
+            if "MASVS" in mapping_str or "ROOT" in req.title.upper(): category = "Mobile"
+            elif "API" in mapping_str or "ASVS-V13" in req.code or "13." in mapping_str: category = "API"
+
+            severity = req.severity
+            lang_intel = INTEL_MATRIX.get(language.lower(), {})
+            boost = 1.0
+            for vk, w in lang_intel.items():
+                if vk.upper() in mapping_str: boost = max(boost, w)
+            
+            if boost >= 2.0:
+                if severity == "Alto": severity = "Crítico"
+                elif severity == "Médio": severity = "Alto"
+                elif severity == "Baixo": severity = "Médio"
+            elif boost >= 1.5:
+                if severity == "Médio": severity = "Alto"
+                elif severity == "Baixo": severity = "Médio"
+
+            status_obj = db.query(RequirementStatus).filter(RequirementStatus.requirement_code == req.code).first()
+            filtered.append({
+                "id": req.code, "title": req.title, "category": category, "description": req.description,
+                "content": req.content, "severity": severity, "verification": req.verification_instructions,
+                "mapping": req.mapping, "status": status_obj.status if status_obj else "Pendente", "notes": status_obj.notes if status_obj else ""
+            })
+            
+    weights = { "Crítico": 4, "Alto": 3, "Médio": 2, "Baixo": 1 }
+    filtered.sort(key=lambda x: weights.get(x["severity"], 0), reverse=True)
+    return filtered
+
+@app.post("/requirements/{code}/status")
+def update_status(code: str, data: StatusUpdate, db: Session = Depends(get_db)):
+    s = db.query(RequirementStatus).filter(RequirementStatus.requirement_code == code).first()
+    if not s: 
+        s = RequirementStatus(requirement_code=code)
+        db.add(s)
+    s.status = data.status
+    s.notes = data.notes
+    db.commit()
+    return {"ok": True}
+
+@app.post("/seed")
+def seed_data(db: Session = Depends(get_db)):
+    init_db()
+    db.query(KnowledgeBase).delete(); db.commit()
+    try:
+        with open(DATA_PATH, "r", encoding="utf-8-sig") as f:
+            data = json.load(f)
+            for item in data:
+                db.add(KnowledgeBase(code=item["id"], title=item["title"], description=item.get("description", ""), content=item["content"], severity=item.get("severity", "Médio"), verification_instructions=item.get("verification", ""), rules=item["rules"], mapping=item["mapping"]))
+            db.commit()
+        return {"message": f"Seed OK: {len(data)}"}
+    except Exception as e: return {"error": str(e)}
+
+if __name__ == "__main__":
+    import uvicorn
+    init_db()
+    uvicorn.run(app, host="0.0.0.0", port=8000)
