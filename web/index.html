@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Sentinel SRaC - Dark Pro v1.6</title>
+    <title>LeftArrow - Dark Pro v1.6</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -46,7 +46,6 @@
         .sev-baixo { background: #64748b; }
 
         .verification { margin-top: 15px; padding: 15px; background: rgba(34, 197, 94, 0.1); border: 1px dashed var(--primary-green); border-radius: 6px; font-size: 13px; color: #bef264; margin-bottom: 20px; }
-
         .status-section select { height: 40px; padding: 5px 10px; line-height: 30px; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 4px; }
         .category-header { font-size: 22px; font-weight: bold; padding: 15px; border-radius: 8px; margin: 40px 0 20px 0; background: rgba(255,255,255,0.03); }
         .cat-api { border-left: 6px solid var(--api-color); color: var(--api-color); }
@@ -62,7 +61,17 @@
 <body>
 
 <div class="container">
-    <h1>Sentinel SRaC <span style="font-size: 12px; background: var(--primary-blue); color: #0f172a; padding: 6px 12px; border-radius: 20px; font-weight: bold;">v1.6 DARK PRO</span></h1>
+    <h1>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-green);">
+                <path d="M18 3s-3 3-3 9 3 9 3 9"></path>
+                <line x1="3" y1="12" x2="15" y2="12"></line>
+                <polyline points="7 8 3 12 7 16"></polyline>
+            </svg>
+            LeftArrow
+        </div>
+        <span style="font-size: 12px; background: var(--primary-blue); color: #0f172a; padding: 6px 12px; border-radius: 20px; font-weight: bold;">v1.6 DARK PRO</span>
+    </h1>
 
     <div class="survey-section" id="survey">
         <h2>Perfilamento de Segurança</h2>
@@ -86,7 +95,7 @@
 
         <div class="toggle-container">
             <input type="checkbox" id="top10_only">
-            <label for="top10_only" style="margin:0; cursor:pointer; color: var(--primary-blue);"><b>Modo OWASP Top 10 Only</b> (Focar no Crítico)</label>
+            <label for="top10_only" style="margin:0; cursor:pointer; color: var(--primary-blue);"><b>Modo OWASP Top 10 Focus</b> (Web & API)</label>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 15px;">
@@ -101,7 +110,7 @@
     <div class="results-section" id="results">
         <div class="risk-dashboard">
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 style="margin:0; color: white;">PROTEÇÃO ATUAL</h2>
+                <h2 style="margin:0; color: white;">SCORE DE PROTEÇÃO</h2>
                 <div id="riskScoreValue" style="font-size: 32px; font-weight: bold; color: var(--primary-green);">0%</div>
             </div>
             <div class="risk-bar-container"><div id="riskBar" class="risk-bar-fill"></div><div class="risk-bar-text">PROGRESSO DE IMPLEMENTAÇÃO</div></div>
@@ -182,7 +191,7 @@
             <div class="stat-card"><b>${counts['Crítico']}</b><span>Críticos</span></div>
             <div class="stat-card"><b>${counts['Alto']}</b><span>Altos</span></div>
             <div class="stat-card"><b>${currentRequirements.length}</b><span>Total Itens</span></div>
-            <div class="stat-card" style="border-color: var(--primary-green)"><b>${progress}%</b><span>Seguro</span></div>
+            <div class="stat-card" style="border-color: var(--primary-green)"><b>${progress}%</b><span>Proteção</span></div>
         `;
     }
 
@@ -212,14 +221,14 @@
                             <div class="mapping">${mappings}</div>
                             <div class="status-section">
                                 <div style="flex:1">
-                                    <select id="status-${req.id}" onchange="updateStatus('${req.id}')" style="height:35px; background:#0f172a;">
+                                    <select id="status-${req.id}" onchange="updateStatus('${req.id}')" style="height:40px; background:#0f172a; padding:5px 10px; line-height:30px; color:white; border:1px solid #334155; border-radius:4px; width:100%;">
                                         <option value="Pendente" ${req.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
-                                        <option value="Implementado" ${req.status === 'Implementado' ? 'selected' : ''}>Implementado</option>
+                                        <option value="Implementado" ${req.status === 'Implementado' ? 'selected' : ''}>OK / Implementado</option>
                                         <option value="N/A" ${req.status === 'N/A' ? 'selected' : ''}>N/A</option>
                                     </select>
                                 </div>
                                 <div style="flex:3">
-                                    <input id="notes-${req.id}" onblur="updateStatus('${req.id}')" placeholder="Notas de evidência..." value="${req.notes}" style="height:35px; background:#0f172a;">
+                                    <input id="notes-${req.id}" onblur="updateStatus('${req.id}')" placeholder="Evidência ou notas de implementação..." value="${req.notes}" style="height:40px; background:#0f172a;">
                                 </div>
                             </div>
                         </div>

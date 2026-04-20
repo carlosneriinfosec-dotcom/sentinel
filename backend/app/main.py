@@ -156,6 +156,100 @@ def update_status(code: str, data: StatusUpdate, db: Session = Depends(get_db)):
     db.commit()
     return {"ok": True}
 
+from xml.sax.saxutils import escape
+
+@app.get("/export/pdf")
+def export_pdf(
+    language: str, pii_data: bool = False, database: str = "sql",
+    web_api: bool = False, web_frontend: bool = False,
+    mobile_app: bool = False, business_criticality: str = "media",
+    top10_only: bool = False, rigor: str = "essencial",
+    db: Session = Depends(get_db)
+):
+    """Gera um relatório PDF com os requisitos filtrados."""
+    requirements = get_requirements(
+        language, pii_data, database, web_api, web_frontend, mobile_app, 
+        business_criticality, top10_only, rigor, db
+    )
+    
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    
+    # Estilos customizados
+    title_style = styles['Heading1']
+    subtitle_style = styles['Heading2']
+    body_style = styles['BodyText']
+    
+    elements = []
+    
+    # Cabeçalho
+    elements.append(Paragraph(escape("Relatório de Requisitos de Segurança - LeftArrow"), title_style))
+    elements.append(Paragraph(escape(f"Gerado em: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"), body_style))
+    
+    # Cálculo de Risco para o PDF
+    severity_counts = {"Crítico": 0, "Alto": 0, "Médio": 0, "Baixo": 0}
+    for r in requirements:
+        sev = r.get("severity", "Médio")
+        severity_counts[sev] = severity_counts.get(sev, 0) + 1
+    
+    risk_summary = f"<b>Resumo de Risco:</b> {severity_counts['Crítico']} Críticos, {severity_counts['Alto']} Altos, {severity_counts['Médio']} Médios"
+    elements.append(Paragraph(risk_summary, body_style))
+    elements.append(Spacer(1, 0.25 * inch))
+    
+    current_cat = None
+    for req in requirements:
+        # Seção por Categoria
+        if req['category'] != current_cat:
+            current_cat = req['category']
+            cat_label = { "Mobile": "SEGURANÇA MOBILE", "API": "SEGURANÇA DE APIS", "Sistema": "SEGURANÇA DE SISTEMA" }.get(current_cat, current_cat)
+            elements.append(Spacer(1, 0.2 * inch))
+            elements.append(Paragraph(f"--- {escape(cat_label)} ---", subtitle_style))
+            elements.append(Spacer(1, 0.1 * inch))
+
+        # Cor baseada na severidade
+        sev_color = "black"
+        if req['severity'] == "Crítico": sev_color = "red"
+        elif req['severity'] == "Alto": sev_color = "orange"
+        
+        # Título do Requisito
+        title_text = f"[{req['id']}] {req['title']} - <font color='{sev_color}'>{req['severity']}</font>"
+        elements.append(Paragraph(title_text, styles['Heading3']))
+        
+        # Status
+        elements.append(Paragraph(f"Status: <b>{escape(req['status'])}</b>", body_style))
+        
+        # Conteúdo
+        elements.append(Paragraph(f"<b>Instrução:</b> {escape(req['content'])}", body_style))
+        
+        # Descrição
+        if req.get('description'):
+            elements.append(Paragraph(f"<i><b>Por que:</b> {escape(req['description'])}</i>", body_style))
+        
+        # Como Testar
+        if req.get('verification'):
+            elements.append(Paragraph(f"<b>Teste:</b> {escape(req['verification'])}", body_style))
+            
+        # Mapeamento
+        mapping_text = json.dumps(req['mapping'])
+        elements.append(Paragraph(f"<font size='8' color='grey'>Mapeamento: {escape(mapping_text)}</font>", body_style))
+        
+        # Notas
+        if req.get('notes'):
+            elements.append(Paragraph(f"<b>Notas:</b> {escape(req['notes'])}", body_style))
+            
+        elements.append(Spacer(1, 0.1 * inch))
+        elements.append(HRFlowable(width="100%", thickness=0.5, color=colors.lightgrey))
+        elements.append(Spacer(1, 0.1 * inch))
+        
+    doc.build(elements)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={
+        "Content-Disposition": "attachment; filename=requirements.pdf"
+    })
+
 @app.post("/seed")
 def seed_data(db: Session = Depends(get_db)):
     init_db()
